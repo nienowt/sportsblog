@@ -53,7 +53,7 @@ var blogSchema = new Schema({
     type: String,
     required: true
   },
-  keywords: [String]
+  keywords: String
   /*image: {
     type: String,
     required: true

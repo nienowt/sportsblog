@@ -7,7 +7,9 @@ module.exports = (router) => {
 
   router.post('/blogs', (req, res) => {
     console.log('blogs POST route hit');
+    console.log(req.body.keywords)
     var keys = req.body.keywords.split(' ')
+
 
     var blog = new Blog(req.body);
     blog.save(function(err, data) {
@@ -22,15 +24,18 @@ module.exports = (router) => {
             var newKeyword =  new Keyword(
               {
                 keyword: key,
-                articles: data._id
+                articles: [data._id]
               });
-            keyword.save((err, data) => {
+            newKeyword.save((err, data) => {
               if(err) console.log(err)
+              console.log('Saved!')
               console.log(data);
+              res.end();
             })
-          }
-          if (keyword) {
-            keyword.articles.push(data._id);
+          } else if (keyword) {
+            Keyword.findOneAndUpdate({keyword: key}, {$push: {'articles': data._id}}, (err) => {
+              if(err) console.log(err);
+            })
           }
           })
         })

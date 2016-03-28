@@ -3,7 +3,7 @@
  let mongoose = require('mongoose');
 
 let keywordSchema = mongoose.Schema({
-  keyword: {type: String, unique: true},
+  keyword: String,
   articles: [
     {
       type: mongoose.Schema.Types.ObjectId,
