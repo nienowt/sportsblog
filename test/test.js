@@ -30,7 +30,6 @@ describe('post route', function() {
     .send(testParams)
     .end(function(err, res) {
       expect(err).to.eql(null);
-      // token = res.headers.token;
       expect(res.body.email).to.eql('test@test.com');
       expect(res.body).to.have.property('_id');
       expect(res.body.password).to.not.eql('testpass');
@@ -43,7 +42,7 @@ describe('post route', function() {
     .auth('test@test.com', 'testpass')
     .end(function(err, res) {
       expect(err).to.eql(null);
-      // token = res.headers.token;
+      token = res.headers.token;
       // console.log(token);
       expect(res.body).to.have.property('token');
       done();
@@ -56,11 +55,9 @@ describe('post route', function() {
       .end(function (err, res) {
         expect(err).to.eql(null);
         expect(res.body).to.be.an('array');
-        // debugger;
         done();
       });
   });
-
 });
 
 var userId;

@@ -18,8 +18,7 @@ module.exports = (router) => {
       }
       var genToken = user.generateToken();
       res.set('token', genToken);
-      // res.json({token: genToken});
-      res.json({token: user.generateToken()});
+      res.json({token: genToken});
     });
   });
 

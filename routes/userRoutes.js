@@ -14,9 +14,7 @@ module.exports = (router) => {
         console.log(err);
         res.status(500).json(err);
       }
-      // var token = user.generateToken();
-      // res.set('token', token);
-      // res.json(user);
+      res.json(user);
     });
   })
 
