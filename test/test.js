@@ -7,6 +7,8 @@ chai.use(chaihttp);
 var expect = chai.expect;
 var request = chai.request;
 var port = 'localhost:3000';
+var token = '';
+
 
 process.env.MONGOLAB_URI = 'mongodb://localhost/test';
 require('../app.js');
@@ -28,6 +30,7 @@ describe('post route', function() {
     .send(testParams)
     .end(function(err, res) {
       expect(err).to.eql(null);
+      token = res.headers.token;
       expect(res.body.email).to.eql('test@test.com');
       expect(res.body).to.have.property('_id');
       expect(res.body.password).to.not.eql('testpass');
@@ -37,9 +40,11 @@ describe('post route', function() {
   it('should GET', function(done) {
     request(port)
       .get('/users')
+      .set('Authorization', 'Token ' + token)
       .end(function (err, res) {
         expect(err).to.eql(null);
         expect(res.body).to.be.an('array');
+        // debugger;
         done();
       });
   });
@@ -69,6 +74,7 @@ describe('get, put and delete users/:user route', function (){
   it('should GET', function(done) {
     request(port)
       .get('/users/' + userId)
+      .set('Authorization', 'Token ' + token)
       .end(function (err, res) {
         expect(err).to.eql(null);
         console.log(res.text);
@@ -79,6 +85,7 @@ describe('get, put and delete users/:user route', function (){
   it('should PUT', function(done) {
     request(port)
     .put('/users/' + userId)
+    .set('Authorization', 'Token ' + token)
     .send({name: 'testUser', email: 'testuserMod@test.com', password: '123'})
     .end(function (err, res) {
       expect(err).to.eql(null);
@@ -90,6 +97,7 @@ describe('get, put and delete users/:user route', function (){
   it('should DELETE', (done) => {
     request(port)
     .delete('/users/' + userId)
+    .set('Authorization', 'Token ' + token)
     .end((err, res) => {
       expect(err).to.eql(null);
       expect(res.text).to.equal('{"msg":"User was removed"}');
