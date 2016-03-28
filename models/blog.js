@@ -20,7 +20,11 @@ var blogSchema = new Schema({
   content: {
     type: String,
     required: true
-  }
+  },
+  keywords: [String]
+  /*comments: [{
+    type: String
+  }],*/
   /*image: {
     type: String,
     required: true

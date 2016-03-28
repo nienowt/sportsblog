@@ -2,6 +2,7 @@
 
 var User = require('../models/user');
 var auth = require('../lib/authenticate');
+var bcrypt = require('bcrypt');
 
 module.exports = (router) => {
 
@@ -17,9 +18,12 @@ module.exports = (router) => {
     });
   })
 
-  .put('/users/:user', (req, res) => {
+  .put('/users/:user', auth, (req, res) => {
     var userId = req.params.user;
     var newUserInfo = req.body;
+    if (req.body.password != null) {
+      req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+    }
     User.update({_id: userId}, newUserInfo, function(err, user) {
       if (err) {
         console.log(err);
@@ -45,7 +49,7 @@ module.exports = (router) => {
     });
   })
 
-  .get('/users', (req, res) => {
+  .get('/users', auth, (req, res) => {
     User.find({}, function(err, data) {
       console.log('get route hit');
       if (err) {
@@ -56,7 +60,7 @@ module.exports = (router) => {
     });
   })
 
-  .get('/users/:user', (req, res) => {
+  .get('/users/:user', auth, (req, res) => {
     var userId = req.params.user;
     User.findOne({_id: userId}, function(err, user) {
       if (err) {

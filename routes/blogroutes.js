@@ -1,22 +1,34 @@
 'use strict';
 
 var Blog = require('../models/blog');
+var User = require('../models/user');
+var auth = require('../lib/authenticate');
 
 module.exports = (router) => {
 
-  router.post('/blogs', (req, res) => {
+  router.post('/blogs', auth, (req, res) => {
     console.log('blogs POST route hit');
     var blog = new Blog(req.body);
-    blog.save(function(err, data) {
-      if (err) {
+    // finding author name from header token
+    User.findOne({_id: req.decodedToken._id})
+      .then(user => {
+        req.user = user;
+        blog.author = user.name;
+        blog.save(function(err, data) {
+          if (err) {
+            console.log(err);
+            res.status(500).json(err);
+          }
+          res.json(data);
+        });
+      })
+      .catch(err => {
         console.log(err);
-        res.status(500).json(err);
-      }
-      res.json(data);
-    });
+        res.status(418).json({msg: err});
+      });
   })
 
-  .put('/blogs/:blog', (req, res) => {
+  .put('/blogs/:blog', auth, (req, res) => {
     var blogId = req.params.blog;
     var newBlogInfo = req.body;
     Blog.update({_id: blogId}, newBlogInfo, function(err, blog) {
@@ -32,7 +44,7 @@ module.exports = (router) => {
     });
   })
 
-  .delete('/blogs/:blog', (req, res) => {
+  .delete('/blogs/:blog', auth, (req, res) => {
     var blogId = req.params.blog;
     Blog.findOne({_id: blogId}, function(err, blog) {
       if (err){
