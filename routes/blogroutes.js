@@ -109,6 +109,16 @@ module.exports = (router) => {
         res.status(404).json({msg: 'Unable to locate ' + blogId});
       }
     });
-  });
+  })
+
+  .get('/blogs/articles/:keyword', (req, res) => {
+    var key = req.params.keyword;
+    Keyword.find({keyword: key})
+    .populate('articles')
+    .exec((err, data) => {
+      res.json(data);
+      res.end();
+    })
+  })
 
 };

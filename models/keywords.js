@@ -7,7 +7,7 @@ let keywordSchema = mongoose.Schema({
   articles: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'articles'
+      ref: 'Blog'
     }
   ]
 })
