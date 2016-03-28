@@ -1,17 +1,39 @@
 'use strict';
 
 var Blog = require('../models/blog');
+var Keyword = require('../models/keywords')
 
 module.exports = (router) => {
 
   router.post('/blogs', (req, res) => {
     console.log('blogs POST route hit');
+    var keys = req.body.keywords.split(' ')
+
     var blog = new Blog(req.body);
     blog.save(function(err, data) {
       if (err) {
         console.log(err);
         res.status(500).json(err);
       }
+      keys.forEach((key) => {
+        Keyword.findOne({keyword: key}, (err, keyword) => {
+          if (err) console.log(err);
+          if(!keyword) {
+            var newKeyword =  new Keyword(
+              {
+                keyword: key,
+                articles: data._id
+              });
+            keyword.save((err, data) => {
+              if(err) console.log(err)
+              console.log(data);
+            })
+          }
+          if (keyword) {
+            keyword.articles.push(data._id);
+          }
+          })
+        })
       res.json(data);
     });
   })
