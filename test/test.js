@@ -34,20 +34,29 @@ describe('post route', function() {
       done();
     });
   });
-  it('should login and return a token', function(done)  {
+  it('should GET', function(done) {
     request(port)
-    .post('/login')
-    .auth('test@test.com', 'testpass')
-    .end(function(err, res) {
-      expect(err).to.eql(null);
-      expect(res.body).to.have.property('token');
-      done();
-    });
+      .get('/users')
+      .end(function (err, res) {
+        expect(err).to.eql(null);
+        expect(res.body).to.be.an('array');
+        done();
+      });
   });
+  // it('should login and return a token', function(done)  {
+  //   request(port)
+  //   .post('/login')
+  //   .auth('test@test.com', 'testpass')
+  //   .end(function(err, res) {
+  //     expect(err).to.eql(null);
+  //     expect(res.body).to.have.property('token');
+  //     done();
+  //   });
+  // });
 });
 
 var userId;
-describe('delete and put route', function (){
+describe('get, put and delete users/:user route', function (){
   before((done) => {
     request(port)
      .post('/users')
@@ -56,6 +65,16 @@ describe('delete and put route', function (){
        userId = res.body._id;
        done();
      });
+  });
+  it('should GET', function(done) {
+    request(port)
+      .get('/users/' + userId)
+      .end(function (err, res) {
+        expect(err).to.eql(null);
+        console.log(res.text);
+        expect(res.body.email).to.eql('testuser@test.com');
+        done();
+      });
   });
   it('should PUT', function(done) {
     request(port)
