@@ -20,7 +20,7 @@ module.exports = (router) => {
       keys.forEach((key) => {
         Keyword.findOne({keyword: key}, (err, keyword) => {
           if (err) console.log(err);
-          if(!keyword) {
+          if(!keyword && key.length > 0) {
             var newKeyword =  new Keyword(
               {
                 keyword: key,
