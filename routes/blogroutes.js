@@ -60,15 +60,29 @@ module.exports = (router) => {
   })
 
   .delete('/blogs/:blog', (req, res) => {
+    var keys = req.body.keywords.split(' ')
     var blogId = req.params.blog;
     Blog.findOne({_id: blogId}, function(err, blog) {
       if (err){
         console.log(err);
         res.status(500).json(err);
       }
+      keys.forEach((key) => {
+        Keyword.findOne({keyword: key}, (err, keyword) => {
+          if (err) console.log(err);
+          if(keyword) {
+            Keyword.findOneAndUpdate({keyword: key}, {$pull: {'articles': blogId}}, (err) => {
+              if(err) console.log(err);
+              if(keyword.articles.length === 1) {
+                keyword.remove();
+              }
+            });
+          }
+        });
+      })
       blog.remove();
       res.json({msg: 'Blog was removed'});
-    });
+    })
   })
   //get all
   .get('/blogs', (req, res) => {
