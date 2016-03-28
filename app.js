@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 let router = express.Router();
 require(__dirname + '/routes/userRoutes')(router);
-require(__dirname + '/routes/login')(router);
+require(__dirname + '/routes/blogroutes')(router);
 app.use('/', router);
 
 app.listen(port, function() {
