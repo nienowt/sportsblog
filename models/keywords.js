@@ -1,6 +1,6 @@
 'use strict';
 
- let mongoose = require('mongoose');
+let mongoose = require('mongoose');
 
 let keywordSchema = mongoose.Schema({
   keyword: String,
@@ -10,6 +10,6 @@ let keywordSchema = mongoose.Schema({
       ref: 'Blog'
     }
   ]
-})
+});
 
 module.exports = mongoose.model('keywords', keywordSchema);
