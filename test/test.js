@@ -47,7 +47,7 @@ describe('post route', function() {
 });
 
 var userId;
-describe('delete route', function (){
+describe('delete and put route', function (){
   before((done) => {
     request(port)
      .post('/users')
@@ -56,6 +56,17 @@ describe('delete route', function (){
        userId = res.body._id;
        done();
      });
+  });
+  it('should PUT', function(done) {
+    request(port)
+    .put('/users/' + userId)
+    .send({name: 'testUser', email: 'testuserMod@test.com', password: '123'})
+    .end(function (err, res) {
+      expect(err).to.eql(null);
+      console.log(res.text);
+      expect(res.text).to.eql('{"ok":1,"nModified":1,"n":1}');
+      done();
+    });
   });
   it('should DELETE', (done) => {
     request(port)
@@ -66,4 +77,5 @@ describe('delete route', function (){
       done();
     });
   });
+
 });
