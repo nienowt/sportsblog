@@ -6,9 +6,10 @@ var chaihttp = require('chai-http');
 chai.use(chaihttp);
 var expect = chai.expect;
 var request = chai.request;
+var port = 'localhost:3000';
 
 process.env.MONGOLAB_URI = 'mongodb://localhost/test';
-require('../server.js');
+require('../app.js');
 
 describe('post route', function() {
   after(function(done) {
@@ -22,7 +23,7 @@ describe('post route', function() {
     password: 'testpass'
   };
   it('should post a user', function(done)  {
-    request('localhost:3000')
+    request(port)
     .post('/users')
     .send(testParams)
     .end(function(err, res) {
@@ -34,7 +35,7 @@ describe('post route', function() {
     });
   });
   it('should login and return a token', function(done)  {
-    request('localhost:3000')
+    request(port)
     .post('/login')
     .auth('test@test.com', 'testpass')
     .end(function(err, res) {
@@ -45,3 +46,24 @@ describe('post route', function() {
   });
 });
 
+var userId;
+describe('delete route', function (){
+  before((done) => {
+    request(port)
+     .post('/users')
+     .send({name: 'testUser', email: 'testuser@test.com', password: '123'})
+     .end((err, res) => {
+       userId = res.body._id;
+       done();
+     });
+  });
+  it('should DELETE', (done) => {
+    request(port)
+    .delete('/users/' + userId)
+    .end((err, res) => {
+      expect(err).to.eql(null);
+      expect(res.text).to.equal('{"msg":"User was removed"}');
+      done();
+    });
+  });
+});
