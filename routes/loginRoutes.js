@@ -16,6 +16,9 @@ module.exports = (router) => {
       if (!valid) {
         return res.json({status: 'failure'});
       }
+      var genToken = user.generateToken();
+      res.set('token', genToken);
+      // res.json({token: genToken});
       res.json({token: user.generateToken()});
     });
   });

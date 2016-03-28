@@ -9,12 +9,14 @@ module.exports = (router) => {
   router.post('/users', (req, res) => {
     console.log('users POST route hit');
     var user = new User(req.body);
-    user.save(function(err, data) {
+    user.save(function(err, user) {
       if (err) {
         console.log(err);
         res.status(500).json(err);
       }
-      res.json(data);
+      // var token = user.generateToken();
+      // res.set('token', token);
+      // res.json(user);
     });
   })
 
@@ -37,7 +39,7 @@ module.exports = (router) => {
     });
   })
 
-  .delete('/users/:user', (req, res) => {
+  .delete('/users/:user', auth, (req, res) => {
     var userId = req.params.user;
     User.findOne({_id: userId}, function(err, user) {
       if (err){

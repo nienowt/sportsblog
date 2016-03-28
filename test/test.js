@@ -30,10 +30,22 @@ describe('post route', function() {
     .send(testParams)
     .end(function(err, res) {
       expect(err).to.eql(null);
-      token = res.headers.token;
+      // token = res.headers.token;
       expect(res.body.email).to.eql('test@test.com');
       expect(res.body).to.have.property('_id');
       expect(res.body.password).to.not.eql('testpass');
+      done();
+    });
+  });
+  it('should login and return a token', function(done)  {
+    request(port)
+    .post('/login')
+    .auth('test@test.com', 'testpass')
+    .end(function(err, res) {
+      expect(err).to.eql(null);
+      // token = res.headers.token;
+      // console.log(token);
+      expect(res.body).to.have.property('token');
       done();
     });
   });
@@ -48,16 +60,7 @@ describe('post route', function() {
         done();
       });
   });
-  // it('should login and return a token', function(done)  {
-  //   request(port)
-  //   .post('/login')
-  //   .auth('test@test.com', 'testpass')
-  //   .end(function(err, res) {
-  //     expect(err).to.eql(null);
-  //     expect(res.body).to.have.property('token');
-  //     done();
-  //   });
-  // });
+
 });
 
 var userId;
