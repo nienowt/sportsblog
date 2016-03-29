@@ -24,11 +24,18 @@ module.exports = (router) => {
             console.log(err);
             res.status(500).json(err);
           }
-
+          //adds article to 'authored' list
           User.findByIdAndUpdate(req.decodedToken._id, {$push: {'authored': data._id}}, (err) => {
             if(err) console.log(err);
-          })
-          
+          });
+          //adds article to every follower's newContent list
+          user.followedBy.forEach((follower) => {
+            User.findByIdAndUpdate(follower, {$push: {'newContent': data._id}}, (err) => {
+              if(err) console.log(err);
+              console.log('articles added to followers content list');
+            });
+          });
+          //creates new keyword or adds article to existing
           keys.forEach((key) => {
             Keyword.findOne({keyword: key}, (err, keyword) => {
               if (err) console.log(err);
@@ -79,13 +86,21 @@ module.exports = (router) => {
 
   .delete('/blogs/:blog', auth, (req, res) => {
     var keys = req.body.keywords.split(' ');
-
     var blogId = req.params.blog;
+
     Blog.findOne({_id: blogId}, function(err, blog) {
       if (err){
         console.log(err);
         res.status(500).json(err);
       }
+      User.findOne(blog.author, (err, user) => {
+        user.followedBy.forEach((follower) => {
+          User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => {
+            if(err) console.log(err);
+            console.log('article removed from followers content arrays');
+          });
+        });
+      });
       keys.forEach((key) => {
         Keyword.findOne({keyword: key}, (err, keyword) => {
           if (err) console.log(err);
@@ -130,14 +145,37 @@ module.exports = (router) => {
     });
   })
 
-  .get('/blogs/articles/:keyword', (req, res) => {
+  .get('/keywords/:keyword', (req, res) => {
     var key = req.params.keyword;
     Keyword.find({keyword: key})
     .populate('articles')
     .exec((err, data) => {
-      res.json(data);
-      res.end();
+      if(err || data.length === 0){
+        res.json('No results found');
+        return res.end();
+      }
+      if(data) {
+        res.json(data);
+        res.end();
+      }
+    });
+  })
+
+  .get('/search/:search', (req, res) => {
+    var key = req.params.search;
+    Blog.find({}, (err, blogs) => {
+      var results = [];
+      var count = 0;
+      blogs.forEach((blog) => {
+        count += 1;
+        if (blog.title === key || blog.author === key || blog.date === key) {
+          results.push(blog);
+        }
+      });
+      if (count === blogs.length) {
+        res.json(results);
+        res.end();
+      }
     });
   });
-
 };
