@@ -1,0 +1,12 @@
+<section data-ng-controller="AppCtrl" data-ng-init="getAllPosts()">
+  <div>
+    <h1>These are the articles</h1>
+    <div data-ng-repeat="blog in blogs">
+      <h3>{{blog.title}}</h3>
+      <p>{{blog.date}}</p>
+      <p>{{blog.author}}</p>
+      <p>{{blog.keywords}}</p>
+      <p>{{blog.content}}</p>
+    </div>
+  </div>
+</section>
