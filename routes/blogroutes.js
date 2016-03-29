@@ -132,7 +132,9 @@ module.exports = (router) => {
 
   .get('/blogs/:blog', (req, res) => {
     var blogId = req.params.blog;
-    Blog.findOne({_id: blogId}, function(err, blog) {
+    Blog.findOne({_id: blogId})
+      .populate('comments')
+      .exec(function(err, blog) {
       if (err) {
         console.log(err);
         res.status(500).json({msg: 'Internal server error'});
