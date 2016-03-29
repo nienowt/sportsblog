@@ -86,13 +86,21 @@ module.exports = (router) => {
 
   .delete('/blogs/:blog', auth, (req, res) => {
     var keys = req.body.keywords.split(' ');
-
     var blogId = req.params.blog;
+
     Blog.findOne({_id: blogId}, function(err, blog) {
       if (err){
         console.log(err);
         res.status(500).json(err);
       }
+      User.findOne(blog.author, (err, user) => {
+        user.followedBy.forEach((follower) => {
+          User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => {
+            if(err) console.log(err);
+            console.log('article removed from followers content arrays');
+          });
+        });
+      });
       keys.forEach((key) => {
         Keyword.findOne({keyword: key}, (err, keyword) => {
           if (err) console.log(err);

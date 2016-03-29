@@ -28,6 +28,16 @@ module.exports = (router) => {
     });
   })
 
+  .delete('/users/bookmark', auth, (req, res) => { //removes bookmark
+    var userId = req.decodedToken._id;
+    var articleId = req.body.articleId;
+    User.findByIdAndUpdate(userId, {$pull: {'bookmarked': articleId}}, (err) => {
+      if (err) console.log(err);
+      res.write('bookmark removed');
+      res.end();
+    });
+  })
+
   .post('/users/follow', auth, (req, res) => { //follows an author, adds follower to author
     var userId = req.decodedToken._id;
     var authorId = req.body.authorId;
@@ -38,6 +48,20 @@ module.exports = (router) => {
     User.findByIdAndUpdate(authorId, {$push: {'followedBy': userId}}, (err) => {
       if(err) console.log(err);
       console.log('followed!');
+      res.end();
+    });
+  })
+
+  .delete('/users/follow', auth, (req, res) => { //unfollows an author, removes follower from author
+    var userId = req.decodedToken._id;
+    var authorId = req.body.authorId;
+    User.findByIdAndUpdate(userId, {$pull: {'following': authorId}}, (err) => {
+      if (err) console.log(err);
+      console.log('unfollowing!');
+    });
+    User.findByIdAndUpdate(authorId, {$pull: {'followedBy': userId}}, (err) => {
+      if(err) console.log(err);
+      console.log('unfollowed!');
       res.end();
     });
   })
