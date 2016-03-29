@@ -13,13 +13,13 @@ var token = '';
 process.env.MONGOLAB_URI = 'mongodb://localhost/test';
 require('../app.js');
 
-describe('post route', function() {
+describe('post route', () => {
   var testParams = {
     name: 'testName',
     email: 'test@test.com',
     password: 'testpass'
   };
-  it('should post a user', function(done)  {
+  it('should post a user', (done) => {
     request(port)
     .post('/users')
     .send(testParams)
@@ -31,7 +31,7 @@ describe('post route', function() {
       done();
     });
   });
-  it('should login and return a token', function(done)  {
+  it('should login and return a token', (done) => {
     request(port)
     .post('/login')
     .auth('test@test.com', 'testpass')
@@ -44,12 +44,12 @@ describe('post route', function() {
     });
   });
   var blogTest = {
-  title: 'Basketball Is Fun',
-  date: 'May 29',
-  author: 'Donald Trump',
-  content: 'This is an article about sports',
-  keywords: 'basketball politics'
-}
+    title: 'Basketball Is Fun',
+    date: 'May 29',
+    author: 'Donald Trump',
+    content: 'This is an article about sports',
+    keywords: 'basketball politics'
+  };
   it('POST for blog route', (done) => {
     request(port)
     .post('/blogs')
@@ -61,7 +61,7 @@ describe('post route', function() {
       done();
     });
   });
-  it('should GET Blogs', function(done) {
+  it('should GET Blogs', (done) => {
     request(port)
       .get('/blogs')
       .set('Authorization', 'Token ' + token)
@@ -71,7 +71,7 @@ describe('post route', function() {
         done();
       });
   });
-  it('should GET Users', function(done) {
+  it('should GET Users', (done) => {
     request(port)
       .get('/users')
       .set('Authorization', 'Token ' + token)
@@ -94,7 +94,7 @@ describe('get, put and delete users/:user route', function (){
        done();
      });
   });
-  it('should GET', function(done) {
+  it('should GET', (done) => {
     request(port)
       .get('/users/' + userId)
       .set('Authorization', 'Token ' + token)
@@ -105,7 +105,7 @@ describe('get, put and delete users/:user route', function (){
         done();
       });
   });
-  it('should PUT', function(done) {
+  it('should PUT', (done) => {
     request(port)
     .put('/users/' + userId)
     .set('Authorization', 'Token ' + token)
@@ -136,7 +136,7 @@ describe('get, put and delete blog/:blog route', function (){
     request(port)
      .post('/blogs')
      .set('Authorization', 'Token ' + token)
-     .send({title: 'Ken Griffey Died', date: 'May 29', author: "bfein", content: "This is our paragraph to save the day with", keywords: "basketball baseball"})
+     .send({title: 'Ken Griffey Died', date: 'May 29', author: 'bfein', content: 'This is our paragraph to save the day with', keywords: 'basketball baseball'})
      .end((err, res) => {
       //debugger;
        blogId = res.body._id;
@@ -148,7 +148,7 @@ describe('get, put and delete blog/:blog route', function (){
       done();
     });
   });
-  it('should GET', function(done) {
+  it('should GET', (done) => {
     request(port)
       .get('/blogs/' + blogId)
       .set('Authorization', 'Token ' + token)
@@ -159,12 +159,12 @@ describe('get, put and delete blog/:blog route', function (){
         done();
       });
   });
-  it('should PUT', function(done) {
-    console.log(blogId)
+  it('should PUT', (done) => {
+    console.log(blogId);
     request(port)
     .put('/blogs/' + blogId)
     .set('Authorization', 'Token ' + token)
-    .send({title: 'April Fools, Ken Griffey Alive', date: 'May 29', author: "bfein", content: "This is our paragraph to save the day with", keywords: "basketball baseball"})
+    .send({title: 'April Fools, Ken Griffey Alive', date: 'May 29', author: 'bfein', content: 'This is our paragraph to save the day with', keywords: 'basketball baseball'})
     .end(function (err, res) {
       expect(err).to.eql(null);
       console.log(res.text);
@@ -173,17 +173,15 @@ describe('get, put and delete blog/:blog route', function (){
     });
   });
   it('should DELETE', (done) => {
-
-    console.log(blogId)
+    console.log(blogId);
     request(port)
     .delete('/blogs/' + blogId)
     .set('Authorization', 'Token ' + token)
-    .send({keywords: "basketball baseball"})
-    .end((err, res) => {
+    .send({keywords: 'basketball baseball'})
+    .end(function (err, res) {
       expect(err).to.eql(null);
       expect(res.text).to.equal('{"msg":"Blog was removed"}');
       done();
     });
   });
-
 });
