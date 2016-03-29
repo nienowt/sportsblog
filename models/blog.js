@@ -27,6 +27,12 @@ var blogSchema = new Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'comments'
     }
+  ],
+  images: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref:'images'
+    }
   ]
 });
 

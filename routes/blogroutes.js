@@ -4,6 +4,8 @@ var Blog = require('../models/blog');
 var Keyword = require('../models/keywords');
 var User = require('../models/user');
 var auth = require('../lib/authenticate');
+var AWS = require('aws-sdk');
+AWS.config.region = 'us-west-2';
 
 var T = require('../twitter');
 
@@ -88,6 +90,32 @@ module.exports = (router) => {
         res.status(404).json({msg: 'Unable to locate ' + blogId });
       }
     });
+  })
+
+  .put('/blogs/:blog/images',auth, (req, res) => {
+    var imgData = [];
+    var fileContent;
+    req.on('data', (data) => {
+      console.log(data)
+      imgData.push(data)
+    }).on('end', () =>{
+      fileContent = Buffer.concat(imgData);
+      var s3 = new AWS.S3()
+      var params = {Bucket: 'sportsblogimages', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
+      s3.upload(params,(err, data) => {
+        if (err) {
+          res.send(err)
+          return res.end()
+        }
+        if (data) {
+          res.json(data);
+          res.end();
+        } else {
+          res.write('nope')
+          res.end();
+        }
+      })
+    })
   })
 
 
