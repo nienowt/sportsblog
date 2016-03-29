@@ -5,6 +5,8 @@ var Keyword = require('../models/keywords');
 var User = require('../models/user');
 var auth = require('../lib/authenticate');
 
+var T = require('../twitter');
+
 module.exports = (router) => {
 
   router.post('/blogs', auth, (req, res) => { //replace auth! !!!
@@ -24,6 +26,11 @@ module.exports = (router) => {
             console.log(err);
             res.status(500).json(err);
           }
+          //tweets article
+          T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
+            if (err) console.log(err)
+            console.log(data)
+          })
           //adds article to 'authored' list
           User.findByIdAndUpdate(req.decodedToken._id, {$push: {'authored': data._id}}, (err) => {
             if(err) console.log(err);

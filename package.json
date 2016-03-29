@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/greydays/sportsblog/issues"
   },
-    "devDependencies": {
+  "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^2.0.1",
     "gulp": "^3.9.1",
@@ -31,7 +31,8 @@
     "express": "^4.13.4",
     "jsonwebtoken": "^5.7.0",
     "mongoose": "^4.4.7",
-    "morgan": "^1.7.0"
+    "morgan": "^1.7.0",
+    "twit": "^2.2.3"
   },
   "homepage": "https://github.com/greydays/sportsblog#readme"
 }
