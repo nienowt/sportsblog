@@ -145,14 +145,37 @@ module.exports = (router) => {
     });
   })
 
-  .get('/blogs/articles/:keyword', (req, res) => {
+  .get('/keywords/:keyword', (req, res) => {
     var key = req.params.keyword;
     Keyword.find({keyword: key})
     .populate('articles')
     .exec((err, data) => {
-      res.json(data);
-      res.end();
+      if(err || data.length === 0){
+        res.json('No results found');
+        return res.end();
+      }
+      if(data) {
+        res.json(data);
+        res.end();
+      }
+    });
+  })
+
+  .get('/search/:search', (req, res) => {
+    var key = req.params.search;
+    Blog.find({}, (err, blogs) => {
+      var results = [];
+      var count = 0;
+      blogs.forEach((blog) => {
+        count += 1;
+        if (blog.title === key || blog.author === key || blog.date === key) {
+          results.push(blog);
+        }
+      });
+      if (count === blogs.length) {
+        res.json(results);
+        res.end();
+      }
     });
   });
-
 };
