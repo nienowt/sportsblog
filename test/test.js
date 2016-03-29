@@ -14,11 +14,6 @@ process.env.MONGOLAB_URI = 'mongodb://localhost/test';
 require('../app.js');
 
 describe('post route', function() {
-  after(function(done) {
-    mongoose.connection.db.dropDatabase(function() {
-      done();
-    });
-  });
   var testParams = {
     name: 'testName',
     email: 'test@test.com',
@@ -48,7 +43,35 @@ describe('post route', function() {
       done();
     });
   });
-  it('should GET', function(done) {
+  var blogTest = {
+  title: 'Basketball Is Fun',
+  date: 'May 29',
+  author: 'Donald Trump',
+  content: 'This is an article about sports',
+  keywords: 'basketball politics'
+}
+  it('POST for blog route', (done) => {
+    request(port)
+    .post('/blogs')
+    .set('Authorization', 'Token ' + token)
+    .send(blogTest)
+    .end(function (err, res) {
+      expect(err).to.eql(null);
+      expect(res.body.title).to.eql('Basketball Is Fun');
+      done();
+    });
+  });
+  it('should GET Blogs', function(done) {
+    request(port)
+      .get('/blogs')
+      .set('Authorization', 'Token ' + token)
+      .end(function (err, res) {
+        expect(err).to.eql(null);
+        expect(res.body).to.be.an('array');
+        done();
+      });
+  });
+  it('should GET Users', function(done) {
     request(port)
       .get('/users')
       .set('Authorization', 'Token ' + token)
@@ -101,6 +124,64 @@ describe('get, put and delete users/:user route', function (){
     .end((err, res) => {
       expect(err).to.eql(null);
       expect(res.text).to.equal('{"msg":"User was removed"}');
+      done();
+    });
+  });
+
+});
+
+var blogId;
+describe('get, put and delete blog/:blog route', function (){
+  before((done) => {
+    request(port)
+     .post('/blogs')
+     .set('Authorization', 'Token ' + token)
+     .send({title: 'Ken Griffey Died', date: 'May 29', author: "bfein", content: "This is our paragraph to save the day with", keywords: "basketball baseball"})
+     .end((err, res) => {
+      //debugger;
+       blogId = res.body._id;
+       done();
+     });
+  });
+  after(function(done) {
+    mongoose.connection.db.dropDatabase(function() {
+      done();
+    });
+  });
+  it('should GET', function(done) {
+    request(port)
+      .get('/blogs/' + blogId)
+      .set('Authorization', 'Token ' + token)
+      .end(function (err, res) {
+        expect(err).to.eql(null);
+        console.log(res.text);
+        expect(res.body.title).to.eql('Ken Griffey Died');
+        done();
+      });
+  });
+  it('should PUT', function(done) {
+    console.log(blogId)
+    request(port)
+    .put('/blogs/' + blogId)
+    .set('Authorization', 'Token ' + token)
+    .send({title: 'April Fools, Ken Griffey Alive', date: 'May 29', author: "bfein", content: "This is our paragraph to save the day with", keywords: "basketball baseball"})
+    .end(function (err, res) {
+      expect(err).to.eql(null);
+      console.log(res.text);
+      expect(res.text).to.eql('{"ok":1,"nModified":1,"n":1}');
+      done();
+    });
+  });
+  it('should DELETE', (done) => {
+
+    console.log(blogId)
+    request(port)
+    .delete('/blogs/' + blogId)
+    .set('Authorization', 'Token ' + token)
+    .send({keywords: "basketball baseball"})
+    .end((err, res) => {
+      expect(err).to.eql(null);
+      expect(res.text).to.equal('{"msg":"Blog was removed"}');
       done();
     });
   });
