@@ -30,6 +30,28 @@ var userSchema = new Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref:'Blog'
     }
+  ],
+  following: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref:'User'
+    },
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'keywords'
+    }
+  ],
+  followedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
+  newContent: [
+    {
+      type:mongoose.Schema.Types.ObjectId,
+      ref: 'Blog'
+    }
   ]
 });
 // the pre save function doesn't work for put routes.

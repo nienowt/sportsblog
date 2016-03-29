@@ -18,14 +18,28 @@ module.exports = (router) => {
     });
   })
 
-  .post('/users/bookmark', auth, (req, res) =>{
+  .post('/users/bookmark', auth, (req, res) =>{ //represents what would happen if a 'bookmark' or 'like' button was hit
     var userId = req.decodedToken._id;
     var articleId = req.body.articleId;
     User.findByIdAndUpdate(userId, {$push: {'bookmarked': articleId}}, (err) => {
-      if (err) console.log(err)
-      res.write('Saved!')
-      res.end()
-    })
+      if (err) console.log(err);
+      res.write('Saved!');
+      res.end();
+    });
+  })
+
+  .post('/users/follow', auth, (req, res) => { //follows an author, adds follower to author
+    var userId = req.decodedToken._id;
+    var authorId = req.body.authorId;
+    User.findByIdAndUpdate(userId, {$push: {'following': authorId}}, (err) => {
+      if (err) console.log(err);
+      console.log('following!');
+    });
+    User.findByIdAndUpdate(authorId, {$push: {'followedBy': userId}}, (err) => {
+      if(err) console.log(err);
+      console.log('followed!');
+      res.end();
+    });
   })
 
   .put('/users/:user', auth, (req, res) => {
@@ -63,6 +77,9 @@ module.exports = (router) => {
     User.find({})
     .populate('authored')
     .populate('bookmarked')
+    .populate('newContent')
+    .populate('followedBy')
+    .populate('following')
     .exec(function(err, data) {
       console.log('get route hit');
       if (err) {
@@ -75,7 +92,13 @@ module.exports = (router) => {
 
   .get('/users/:user', auth, (req, res) => {
     var userId = req.params.user;
-    User.findOne({_id: userId}, function(err, user) {
+    User.findOne({_id: userId})
+    .populate('authored')
+    .populate('bookmarked')
+    .populate('newContent')
+    .populate('followedBy')
+    .populate('following')
+    .exec(function(err, user) {
       if (err) {
         console.log(err);
         res.status(500).json({msg: 'Internal server error'});
@@ -87,5 +110,4 @@ module.exports = (router) => {
       }
     });
   });
-
 };
