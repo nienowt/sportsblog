@@ -18,6 +18,54 @@ module.exports = (router) => {
     });
   })
 
+  .post('/users/bookmark', auth, (req, res) =>{ //represents what would happen if a 'bookmark' or 'like' button was hit
+    var userId = req.decodedToken._id;
+    var articleId = req.body.articleId;
+    User.findByIdAndUpdate(userId, {$push: {'bookmarked': articleId}}, (err) => {
+      if (err) console.log(err);
+      res.write('Saved!');
+      res.end();
+    });
+  })
+
+  .delete('/users/bookmark', auth, (req, res) => { //removes bookmark
+    var userId = req.decodedToken._id;
+    var articleId = req.body.articleId;
+    User.findByIdAndUpdate(userId, {$pull: {'bookmarked': articleId}}, (err) => {
+      if (err) console.log(err);
+      res.write('bookmark removed');
+      res.end();
+    });
+  })
+
+  .post('/users/follow', auth, (req, res) => { //follows an author, adds follower to author
+    var userId = req.decodedToken._id;
+    var authorId = req.body.authorId;
+    User.findByIdAndUpdate(userId, {$push: {'following': authorId}}, (err) => {
+      if (err) console.log(err);
+      console.log('following!');
+    });
+    User.findByIdAndUpdate(authorId, {$push: {'followedBy': userId}}, (err) => {
+      if(err) console.log(err);
+      console.log('followed!');
+      res.end();
+    });
+  })
+
+  .delete('/users/follow', auth, (req, res) => { //unfollows an author, removes follower from author
+    var userId = req.decodedToken._id;
+    var authorId = req.body.authorId;
+    User.findByIdAndUpdate(userId, {$pull: {'following': authorId}}, (err) => {
+      if (err) console.log(err);
+      console.log('unfollowing!');
+    });
+    User.findByIdAndUpdate(authorId, {$pull: {'followedBy': userId}}, (err) => {
+      if(err) console.log(err);
+      console.log('unfollowed!');
+      res.end();
+    });
+  })
+
   .put('/users/:user', auth, (req, res) => {
     var userId = req.params.user;
     var newUserInfo = req.body;
@@ -50,7 +98,13 @@ module.exports = (router) => {
   })
 
   .get('/users', auth, (req, res) => {
-    User.find({}, function(err, data) {
+    User.find({})
+    .populate('authored')
+    .populate('bookmarked')
+    .populate('newContent')
+    .populate('followedBy')
+    .populate('following')
+    .exec(function(err, data) {
       console.log('get route hit');
       if (err) {
         console.log(err);
@@ -62,7 +116,13 @@ module.exports = (router) => {
 
   .get('/users/:user', auth, (req, res) => {
     var userId = req.params.user;
-    User.findOne({_id: userId}, function(err, user) {
+    User.findOne({_id: userId})
+    .populate('authored')
+    .populate('bookmarked')
+    .populate('newContent')
+    .populate('followedBy')
+    .populate('following')
+    .exec(function(err, user) {
       if (err) {
         console.log(err);
         res.status(500).json({msg: 'Internal server error'});
@@ -74,5 +134,4 @@ module.exports = (router) => {
       }
     });
   });
-
 };
