@@ -5,16 +5,7 @@ var Keyword = require('../models/keywords');
 var User = require('../models/user');
 var auth = require('../lib/authenticate');
 
-var Twit = require('twit');
-
-var T = new Twit({
-  consumer_key: process.env.TWITTER_CONS_KEY,
-  consumer_secret: process.env.TWITTER_CONS_SECRET,
-  access_token: process.env.TWITTER_ACCESS_TOKEN,
-  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-})
-
-
+var T = require('../twitter');
 
 module.exports = (router) => {
 
