@@ -18,6 +18,16 @@ module.exports = (router) => {
     });
   })
 
+  .post('/users/bookmark', auth, (req, res) =>{
+    var userId = req.decodedToken._id;
+    var articleId = req.body.articleId;
+    User.findByIdAndUpdate(userId, {$push: {'bookmarked': articleId}}, (err) => {
+      if (err) console.log(err)
+      res.write('Saved!')
+      res.end()
+    })
+  })
+
   .put('/users/:user', auth, (req, res) => {
     var userId = req.params.user;
     var newUserInfo = req.body;
@@ -50,7 +60,10 @@ module.exports = (router) => {
   })
 
   .get('/users', auth, (req, res) => {
-    User.find({}, function(err, data) {
+    User.find({})
+    .populate('authored')
+    .populate('bookmarked')
+    .exec(function(err, data) {
       console.log('get route hit');
       if (err) {
         console.log(err);

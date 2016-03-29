@@ -18,7 +18,19 @@ var userSchema = new Schema({
   password: {
     type: String,
     required: true
-  }
+  },
+  authored: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Blog'
+    }
+  ],
+  bookmarked: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref:'Blog'
+    }
+  ]
 });
 // the pre save function doesn't work for put routes.
 userSchema.pre('save', function(next) {

@@ -7,7 +7,7 @@ var auth = require('../lib/authenticate');
 
 module.exports = (router) => {
 
-  router.post('/blogs', auth, (req, res) => {
+  router.post('/blogs', auth, (req, res) => { //replace auth! !!!
     console.log('blogs POST route hit');
     console.log(req.body.keywords);
     var keys = req.body.keywords.split(' ');
@@ -24,6 +24,11 @@ module.exports = (router) => {
             console.log(err);
             res.status(500).json(err);
           }
+
+          User.findByIdAndUpdate(req.decodedToken._id, {$push: {'authored': data._id}}, (err) => {
+            if(err) console.log(err);
+          })
+          
           keys.forEach((key) => {
             Keyword.findOne({keyword: key}, (err, keyword) => {
               if (err) console.log(err);
