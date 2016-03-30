@@ -35,10 +35,6 @@ var userSchema = new Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref:'User'
-    },
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'keywords'
     }
   ],
   followedBy: [
