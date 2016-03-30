@@ -30,6 +30,10 @@ app.config(['$routeProvider', function($routeProvider) {
       templateUrl: 'html/post.html',
       controller: 'AppCtrl'
     })
+    .when('/imageupload', {
+      templateUrl: 'html/imageupload.html',
+      controller: 'AppCtrl'
+    })
     .when('/', {
       templateUrl: 'html/list.html',
       controller: 'AppCtrl'

@@ -2,17 +2,17 @@
   <div>
     <h1>These are the articles</h1>
     <div data-ng-repeat="blog in blogs | orderBy: '-date' : !reverse">
-      <img data-ng-src="{{blog.images.title}}">
+      <img data-ng-src="{{blog.titleImage}}">
       <h3>{{blog.title}}</h3>
       <p>Posted on {{blog.date | date: 'M/dd/yyyy'}}</p>
       <p>Author: {{blog.author}}</p>
       <p>Keywords: {{blog.keywords[0]}}</p>
       <p>{{blog.content}}
         <span style="float:left; max-width:200px;">
-          <img data-ng-src="{{blog.images.primary}}">
+          <img data-ng-src="{{blog.primary}}">
         </span>
       </p>
-      <img data-ng-src="{{blog.images.secondary}}">
+      <img data-ng-src="{{blog.secondary}}">
       <p>Article Id: {{blog._id}}</p>
     </div>
   </div>

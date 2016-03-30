@@ -40,16 +40,35 @@ module.exports = function(app) {
 
     $scope.postBlog = function(newBlog) {
       $http({
-          method: 'POST',
-          url: 'http://localhost:3000/blogs',
-          headers: {
-            'Authorization': 'Token ' + Auth.getToken()
-          },
-          data: newBlog
-        })
-      // ('http://localhost:3000/blogs', newBlog)
-        .success(function (data){
-          console.log(data);
+        method: 'POST',
+        url: 'http://localhost:3000/blogs',
+        headers: {
+          'Authorization': 'Token ' + Auth.getToken()
+        },
+        data: newBlog
+      })
+      .success(function (data){
+        console.log(data);
+        $location.path('/');
+      });
+    };
+
+    $scope.uploadImage = function(image) {
+      var idUrl = 'http://localhost:3000/blogs/' + $scope.image.blogID + '/images';
+      var fd = new FormData();
+      fd.append('file', $scope.image.imgFile);
+      $http({
+        method: 'PUT',
+        url: idUrl,
+        headers: {
+          'Authorization': 'Token ' + Auth.getToken(),
+          'Content-Type': 'multipart/mixed',
+          'Position': $scope.image.position
+        },
+        data: fd
+      })
+      .success(function (data){
+        console.log(data);
         $location.path('/');
       });
     };
