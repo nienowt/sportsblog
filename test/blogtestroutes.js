@@ -4,16 +4,13 @@ var Blog = require('../models/blog');
 var Keyword = require('../models/keywords');
 var User = require('../models/user');
 var auth = require('../lib/authenticate');
-var nodemailer = require('nodemailer');
 
 module.exports = (router) => {
 
-  router.post('/blogs', auth, (req, res) => { //replace auth! !!!
+  router.post('/testblogs', auth, (req, res) => { //replace auth! !!!
     console.log('blogs POST route hit');
     console.log(req.body.keywords);
     var keys = req.body.keywords.split(' ');
-
-
     var blog = new Blog(req.body);
     // finding author name from header token
     User.findOne({_id: req.decodedToken._id})
@@ -66,31 +63,9 @@ module.exports = (router) => {
         console.log(err);
         res.status(418).json({msg: err});
       });
-    //sending email to users with new blog posting
-    var transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-        user: 'sportsblogcf@gmail.com',
-        pass: process.env.SPORTS_PASS
-      }
-    });
-    var mailOptions = {
-      from: 'Sports Blog <sportsblogcf@gmail.com>',
-      to: 'sportsfanCF41@gmail.com',
-      subject: 'New Sports Blog Post! '+req.body.title,
-      text: 'Here is the latest Sports Blog Post! Title: '+req.body.title+ ' Content: '+req.body.content,
-      html: '<h2>Here is the latest Sports Blog Post!</h2><ul><li>Title: '+req.body.title+'</li><li>Content: '+req.body.content+'</li></ul>'
-    };
-    transporter.sendMail(mailOptions, function(error, info) {
-      if(error) {
-        console.log(error);
-      } else {
-        console.log('Message Sent: ' + info.response);
-      }
-    });
   })
 
-  .put('/blogs/:blog', auth, (req, res) => {
+  .put('/testblogs/:blog', auth, (req, res) => {
     var blogId = req.params.blog;
     var newBlogInfo = req.body;
     Blog.update({_id: blogId}, newBlogInfo, function(err, blog) {
@@ -106,8 +81,7 @@ module.exports = (router) => {
     });
   })
 
-
-  .delete('/blogs/:blog', auth, (req, res) => {
+  .delete('/testblogs/:blog', auth, (req, res) => {
     var keys = req.body.keywords.split(' ');
     var blogId = req.params.blog;
 
@@ -141,8 +115,7 @@ module.exports = (router) => {
       res.json({msg: 'Blog was removed'});
     });
   })
-  //get all
-  .get('/blogs', (req, res) => {
+  .get('/testblogs', (req, res) => {
     Blog.find({}, function(err, data) {
       console.log('blog get route hit');
       if (err) {
@@ -153,7 +126,7 @@ module.exports = (router) => {
     });
   })
 
-  .get('/blogs/:blog', (req, res) => {
+  .get('/testblogs/:blog', (req, res) => {
     var blogId = req.params.blog;
     Blog.findOne({_id: blogId}, function(err, blog) {
       if (err) {
@@ -164,40 +137,6 @@ module.exports = (router) => {
         res.json(blog);
       } else {
         res.status(404).json({msg: 'Unable to locate ' + blogId});
-      }
-    });
-  })
-
-  .get('/keywords/:keyword', (req, res) => {
-    var key = req.params.keyword;
-    Keyword.find({keyword: key})
-    .populate('articles')
-    .exec((err, data) => {
-      if(err || data.length === 0){
-        res.json('No results found');
-        return res.end();
-      }
-      if(data) {
-        res.json(data);
-        res.end();
-      }
-    });
-  })
-
-  .get('/search/:search', (req, res) => {
-    var key = req.params.search;
-    Blog.find({}, (err, blogs) => {
-      var results = [];
-      var count = 0;
-      blogs.forEach((blog) => {
-        count += 1;
-        if (blog.title === key || blog.author === key || blog.date === key) {
-          results.push(blog);
-        }
-      });
-      if (count === blogs.length) {
-        res.json(results);
-        res.end();
       }
     });
   });
