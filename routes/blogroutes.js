@@ -28,12 +28,12 @@ module.exports = (router) => {
             console.log(err);
             res.status(500).json(err);
           }
-          //tweets article
+          tweets article
           T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
             if (err) console.log(err);
             console.log(data);
           });
-          //adds article to 'authored' list
+          adds article to 'authored' list
           User.findByIdAndUpdate(req.decodedToken._id, {$push: {'authored': data._id}}, (err) => {
             if(err) console.log(err);
           });
@@ -127,6 +127,7 @@ module.exports = (router) => {
         res.send('upload failed');
         return res.end();
       }
+      // change bucketname!
       var params = {Bucket: 'sportsblogimages', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
       s3.upload(params,(err, data) => {
         if (err) {
