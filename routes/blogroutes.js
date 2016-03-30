@@ -4,6 +4,7 @@ var Blog = require('../models/blog');
 var Keyword = require('../models/keywords');
 var User = require('../models/user');
 var auth = require('../lib/authenticate');
+var nodemailer = require('nodemailer');
 
 module.exports = (router) => {
 
@@ -65,6 +66,29 @@ module.exports = (router) => {
         console.log(err);
         res.status(418).json({msg: err});
       });
+    var transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: 'sportsblogcf@gmail.com',
+        pass: 'ilovesports'
+      }
+    });
+    var mailOptions = {
+      from: 'Sports Blog <sportsblogcf@gmail.com>',
+      to: 'brandon.feinstein@hotmail.com',
+      subject: 'New Blog Post!',
+      text: 'New blog post on Sports Blog!'
+    };
+    transporter.sendMail(mailOptions, function(error, info) {
+      if(error) {
+        console.log(error);
+          // res.redirect('/');
+      } else {
+        console.log('Message Sent: ' + info.response);
+          // res.redirect('/');
+      }
+    });
+
   })
 
   .put('/blogs/:blog', auth, (req, res) => {
@@ -175,6 +199,31 @@ module.exports = (router) => {
       if (count === blogs.length) {
         res.json(results);
         res.end();
+      }
+    });
+  })
+
+  .post('/send', (req, res, next) => {
+    var transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: 'sportsblogcf@gmail.com',
+        pass: 'ilovesports'
+      }
+    });
+    var mailOptions = {
+      from: 'Sports Blog <sportsblogcf@gmail.com>',
+      to: 'brandon.feinstein@hotmail.com',
+      subject: 'New Blog Post!',
+      text: 'New blog post on Sports Blog!'
+    };
+    transporter.sendMail(mailOptions, function(error, info) {
+      if(error) {
+        console.log(error);
+        // res.redirect('/');
+      } else {
+        console.log('Message Sent: ' + info.response);
+        // res.redirect('/');
       }
     });
   });
