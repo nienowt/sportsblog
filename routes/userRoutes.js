@@ -6,6 +6,15 @@ var bcrypt = require('bcrypt');
 
 module.exports = (router) => {
 
+  router.use('/users/:user', auth, (req, res, next) => {
+    if(req.decodedToken._id === req.params.user) {
+      next();
+    } else {
+      console.log('Permission Denied!');
+      res.end();
+    }
+  });
+
   router.post('/users', (req, res) => {
     console.log('users POST route hit');
     var user = new User(req.body);

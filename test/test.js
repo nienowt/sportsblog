@@ -8,24 +8,27 @@ var expect = chai.expect;
 var request = chai.request;
 var port = 'localhost:3000';
 var token = '';
-
+var userId = '';
+var testParams = {
+  name: 'testAdmin',
+  email: 'admin@test.com',
+  password: 'testpass',
+  permissions: 'Admin'
+};
 
 process.env.MONGOLAB_URI = 'mongodb://localhost/test';
 require('../app.js');
 
-describe('post route', () => {
-  var testParams = {
-    name: 'testName',
-    email: 'test@test.com',
-    password: 'testpass'
-  };
+describe('post and get routes', () => {
+
   it('should post a user', (done) => {
     request(port)
     .post('/users')
     .send(testParams)
     .end(function(err, res) {
+      userId = res.body._id;
       expect(err).to.eql(null);
-      expect(res.body.email).to.eql('test@test.com');
+      expect(res.body.email).to.eql('admin@test.com');
       expect(res.body).to.have.property('_id');
       expect(res.body.password).to.not.eql('testpass');
       done();
@@ -34,7 +37,7 @@ describe('post route', () => {
   it('should login and return a token', (done) => {
     request(port)
     .post('/login')
-    .auth('test@test.com', 'testpass')
+    .auth('admin@test.com', 'testpass')
     .end(function(err, res) {
       expect(err).to.eql(null);
       token = res.headers.token;
@@ -51,7 +54,7 @@ describe('post route', () => {
   };
   it('POST for blog route', (done) => {
     request(port)
-    .post('/testblogs')
+    .post('/blogs')
     .set('Authorization', 'Token ' + token)
     .send(blogTest)
     .end(function (err, res) {
@@ -62,11 +65,12 @@ describe('post route', () => {
   });
   it('should GET Blogs', (done) => {
     request(port)
-      .get('/testblogs')
+      .get('/blogs')
       .set('Authorization', 'Token ' + token)
       .end(function (err, res) {
         expect(err).to.eql(null);
         expect(res.body).to.be.an('array');
+        expect(res.body[0].author).to.eql('testAdmin');
         done();
       });
   });
@@ -77,30 +81,32 @@ describe('post route', () => {
       .end(function (err, res) {
         expect(err).to.eql(null);
         expect(res.body).to.be.an('array');
+        expect(res.body[0].email).to.eql('admin@test.com');
         done();
       });
   });
 });
 
-var userId;
+// var userId;
 describe('get, put and delete users/:user route', function (){
-  before((done) => {
-    request(port)
-     .post('/users')
-     .send({name: 'testUser', email: 'testuser@test.com', password: '123'})
-     .end((err, res) => {
-       userId = res.body._id;
-       done();
-     });
-  });
+  // before((done) => {
+  //   request(port)
+  //    .post('/users')
+  //    .send(testParams)
+  //    .end((err, res) => {
+  //      console.log(res.body._id);
+  //     //  userId = res.body._id;
+  //      done();
+  //    });
+  // });
   it('should GET', (done) => {
     request(port)
       .get('/users/' + userId)
       .set('Authorization', 'Token ' + token)
       .end(function (err, res) {
         expect(err).to.eql(null);
-        console.log(res.text);
-        expect(res.body.email).to.eql('testuser@test.com');
+        console.log('this is userId get' + userId);
+        expect(res.body.email).to.eql('admin@test.com');
         done();
       });
   });
@@ -126,18 +132,45 @@ describe('get, put and delete users/:user route', function (){
       done();
     });
   });
-
 });
 
 var blogId;
 describe('get, put and delete blog/:blog route', function (){
   before((done) => {
     request(port)
-     .post('/testblogs')
+    .post('/users')
+    .send(testParams)
+    .end(function(err, res) {
+      userId = res.body._id;
+      done();
+    });
+  });
+  before((done) => {
+    request(port)
+    .post('/login')
+    .auth('admin@test.com', 'testpass')
+    .end(function(err, res) {
+      token = res.headers.token;
+      done();
+    });
+  });
+  // before((done) => {
+  //   request(port)
+  //    .put('/users/' + userId)
+  //    .set('Authorization', 'Token ' + token)
+  //    .send({permissions: 'Admin'})
+  //    .end((err, res) => {
+  //      done();
+  //    });
+  // });
+  before((done) => {
+    request(port)
+     .post('/blogs')
      .set('Authorization', 'Token ' + token)
      .send({title: 'Ken Griffey Died', date: 'May 29', author: 'bfein', content: 'This is our paragraph to save the day with', keywords: 'basketball baseball'})
      .end((err, res) => {
-      //debugger;
+      //  console.log('This is res.text ' + res.text);
+      //  debugger;
        blogId = res.body._id;
        done();
      });
@@ -149,9 +182,10 @@ describe('get, put and delete blog/:blog route', function (){
   });
   it('should GET', (done) => {
     request(port)
-      .get('/testblogs/' + blogId)
+      .get('/blogs/' + blogId)
       .set('Authorization', 'Token ' + token)
       .end(function (err, res) {
+        console.log('This is blogId ' + blogId);
         expect(err).to.eql(null);
         console.log(res.text);
         expect(res.body.title).to.eql('Ken Griffey Died');
@@ -161,7 +195,7 @@ describe('get, put and delete blog/:blog route', function (){
   it('should PUT', (done) => {
     console.log(blogId);
     request(port)
-    .put('/testblogs/' + blogId)
+    .put('/blogs/' + blogId)
     .set('Authorization', 'Token ' + token)
     .send({title: 'April Fools, Ken Griffey Alive', date: 'May 29', author: 'bfein', content: 'This is our paragraph to save the day with', keywords: 'basketball baseball'})
     .end(function (err, res) {
@@ -172,9 +206,8 @@ describe('get, put and delete blog/:blog route', function (){
     });
   });
   it('should DELETE', (done) => {
-    console.log(blogId);
     request(port)
-    .delete('/testblogs/' + blogId)
+    .delete('/blogs/' + blogId)
     .set('Authorization', 'Token ' + token)
     .send({keywords: 'basketball baseball'})
     .end(function (err, res) {
