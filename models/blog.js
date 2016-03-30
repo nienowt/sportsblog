@@ -21,14 +21,19 @@ var blogSchema = new Schema({
     type: String,
     required: true
   },
-  keywords: [String]
-  /*comments: [{
-    type: String
-  }],*/
-  /*image: {
-    type: String,
-    required: true
-  }*/
+  keywords: [String],
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'comments'
+    }
+  ],
+  images: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref:'images'
+    }
+  ]
 });
 
 module.exports = mongoose.model('Blog', blogSchema);

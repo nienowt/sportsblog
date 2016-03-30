@@ -38,7 +38,6 @@ describe('post route', () => {
     .end(function(err, res) {
       expect(err).to.eql(null);
       token = res.headers.token;
-      // console.log(token);
       expect(res.body).to.have.property('token');
       done();
     });
@@ -52,7 +51,7 @@ describe('post route', () => {
   };
   it('POST for blog route', (done) => {
     request(port)
-    .post('/blogs')
+    .post('/testblogs')
     .set('Authorization', 'Token ' + token)
     .send(blogTest)
     .end(function (err, res) {
@@ -63,7 +62,7 @@ describe('post route', () => {
   });
   it('should GET Blogs', (done) => {
     request(port)
-      .get('/blogs')
+      .get('/testblogs')
       .set('Authorization', 'Token ' + token)
       .end(function (err, res) {
         expect(err).to.eql(null);
@@ -134,7 +133,7 @@ var blogId;
 describe('get, put and delete blog/:blog route', function (){
   before((done) => {
     request(port)
-     .post('/blogs')
+     .post('/testblogs')
      .set('Authorization', 'Token ' + token)
      .send({title: 'Ken Griffey Died', date: 'May 29', author: 'bfein', content: 'This is our paragraph to save the day with', keywords: 'basketball baseball'})
      .end((err, res) => {
@@ -150,7 +149,7 @@ describe('get, put and delete blog/:blog route', function (){
   });
   it('should GET', (done) => {
     request(port)
-      .get('/blogs/' + blogId)
+      .get('/testblogs/' + blogId)
       .set('Authorization', 'Token ' + token)
       .end(function (err, res) {
         expect(err).to.eql(null);
@@ -162,7 +161,7 @@ describe('get, put and delete blog/:blog route', function (){
   it('should PUT', (done) => {
     console.log(blogId);
     request(port)
-    .put('/blogs/' + blogId)
+    .put('/testblogs/' + blogId)
     .set('Authorization', 'Token ' + token)
     .send({title: 'April Fools, Ken Griffey Alive', date: 'May 29', author: 'bfein', content: 'This is our paragraph to save the day with', keywords: 'basketball baseball'})
     .end(function (err, res) {
@@ -175,7 +174,7 @@ describe('get, put and delete blog/:blog route', function (){
   it('should DELETE', (done) => {
     console.log(blogId);
     request(port)
-    .delete('/blogs/' + blogId)
+    .delete('/testblogs/' + blogId)
     .set('Authorization', 'Token ' + token)
     .send({keywords: 'basketball baseball'})
     .end(function (err, res) {
