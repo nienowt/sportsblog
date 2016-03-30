@@ -14,6 +14,7 @@ let router = express.Router();
 require(__dirname + '/routes/userRoutes')(router);
 require(__dirname + '/routes/blogroutes')(router);
 require(__dirname + '/routes/loginRoutes')(router);
+require(__dirname + '/routes/weather-routes')(router);
 
 app.use('/', router);
 
