@@ -111,7 +111,6 @@ describe('get, put and delete users/:user route', function (){
       });
   });
   it('should PUT', (done) => {
-    debugger;
     request(port)
     .put('/users/' + userId)
     .set('Authorization', 'Token ' + token)
@@ -207,7 +206,6 @@ describe('get, put and delete blog/:blog route', function (){
     });
   });
   it('should DELETE', (done) => {
-      // debugger;
     request(port)
     .delete('/blogs/' + blogId)
     .set('Authorization', 'Token ' + token)
