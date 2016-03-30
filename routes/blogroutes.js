@@ -129,21 +129,28 @@ module.exports = (router) => {
       }
       // change bucketname!
       var params = {Bucket: 'sportsysports', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
-      s3.upload(params,(err, data) => {
+      s3.upload(params,(err, uploadData) => {
         if (err) {
           res.send(err);
           return res.end();
         }
-        if (data) {
-          var pos = data.key.split('-')[1];
-          var newImage = new Img({position: pos, location: data.Location});  //save image in mongo
-          newImage.save((err, data) => {
+        if (uploadData) {
+          var pos = uploadData.key.split('-')[1];
+          console.log(pos);
+          console.log(typeof pos);
+          var newImage = new Img({position: pos, location: uploadData.Location});  //save image in mongo
+          newImage.save((err) => {
             if(err) console.log(err);
-            Blog.findByIdAndUpdate(req.params.blog,{$push: {'images': data._id}}, (err) => {//push img id into blog image array
-              if (err) console.log(err);
+
+            var update = {};
+            update[pos] = uploadData.Location;
+            console.log(update);
+            Blog.findByIdAndUpdate(req.params.blog, {$set: update}, {new: true}, (err, blog)=> {
+              if(err) console.log(err);
+              console.log(blog);
             });
           });
-          res.json(data);
+          res.json(uploadData);
           res.end();
         } else {
           res.write('nope');
@@ -168,6 +175,23 @@ module.exports = (router) => {
         if(err) console.log(err);
         console.log('pulled');
       });
+      // blog.images.forEach((image) => {
+      //   Img.findOne(image, (err, data) => {
+      //     var key = blogId + '-' + data.position;
+      //     var s3 = new AWS.S3();
+      //     var params = {
+      //       Bucket:'sportsblogimages',
+      //       Delete: {
+      //         Objects: [{Key:key}]
+      //       }
+      //     };
+      //     s3.deleteObjects(params, (err, data) => {
+      //       if(err) console.log(err);
+      //       if(data) console.log(data);
+      //     });
+      //     data.remove();
+      //   })
+      // })
       // User.findOne(blog.author, (err, user) => {
       //   user.followedBy.forEach((follower) => {
       //     User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => { //pull might work without going through each follower eg. blog.find(all)/update - pull newcontent blogid
@@ -196,7 +220,7 @@ module.exports = (router) => {
   //get all
   .get('/blogs', (req, res) => {
     Blog.find({})
-    .populate('images')
+    .populate('comments')
     .exec(function(err, data) {
       console.log('blog get route hit');
       if (err) {
@@ -211,7 +235,6 @@ module.exports = (router) => {
     var blogId = req.params.blog;
     Blog.findOne({_id: blogId})
       .populate('comments')
-      .populate('images')
       .exec(function(err, blog) {
         if (err) {
           console.log(err);
@@ -224,38 +247,4 @@ module.exports = (router) => {
         }
       });
   })
-
-  .get('/keywords/:keyword', (req, res) => {
-    var key = req.params.keyword;
-    Keyword.find({keyword: key})
-    .populate('articles')
-    .exec((err, data) => {
-      if(err || data.length === 0){
-        res.json('No results found');
-        return res.end();
-      }
-      if(data) {
-        res.json(data);
-        res.end();
-      }
-    });
-  })
-
-  .get('/search/:search', (req, res) => {
-    var key = req.params.search;
-    Blog.find({}, (err, blogs) => {
-      var results = [];
-      var count = 0;
-      blogs.forEach((blog) => {
-        count += 1;
-        if (blog.title === key || blog.author === key || blog.date === key) {
-          results.push(blog);
-        }
-      });
-      if (count === blogs.length) {
-        res.json(results);
-        res.end();
-      }
-    });
-  });
 };
