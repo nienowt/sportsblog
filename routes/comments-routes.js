@@ -19,6 +19,7 @@ module.exports = (router) => {
         Blog.findByIdAndUpdate(article, {$push: {'comments': comment._id}}, (err) => {
           if (err) console.log(err);
           if(!err) console.log('comment saved!');
+          res.send(comment);
           res.end();
         });
       });
