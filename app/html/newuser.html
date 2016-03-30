@@ -1,7 +1,8 @@
-<section data-ng-controller="AppCtrl">
+<section data-ng-submit="submitSignUp(newUser)">
+  <h1>New User Sign Up</h1>
   <form>
     <label for="user_name">Name</label>
-    <input data-ng-model="newUser." id="user_name" type="text" placeholder="Joe Schmoe">
+    <input data-ng-model="newUser.name" id="user_name" type="text" placeholder="Joe Schmoe">
     <label for="user_email">email</label>
     <input data-ng-model="newUser.email" id="user_email" type="email" placeholder="you@url.com">
     <label for="user_password">Password</label>

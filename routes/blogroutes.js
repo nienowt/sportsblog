@@ -12,7 +12,6 @@ module.exports = (router) => {
     console.log(req.body.keywords);
     var keys = req.body.keywords.split(' ');
 
-
     var blog = new Blog(req.body);
     // finding author name from header token
     User.findOne({_id: req.decodedToken._id})

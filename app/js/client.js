@@ -9,10 +9,25 @@ require('./controllers/appController')(app);
 
 require('./directives/appDirective')(app);
 
+require('./services/auth')(app);
+
+
 app.config(['$routeProvider', function($routeProvider) {
   $routeProvider
     .when('/articles', {
       templateUrl: 'html/list.html',
+      controller: 'AppCtrl'
+    })
+    .when('/newuser', {
+      templateUrl: 'html/newuser.html',
+      controller: 'AppCtrl'
+    })
+    .when('/login', {
+      templateUrl: 'html/login.html',
+      controller: 'AppCtrl'
+    })
+    .when('/post', {
+      templateUrl: 'html/post.html',
       controller: 'AppCtrl'
     })
     .when('/', {

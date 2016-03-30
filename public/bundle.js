@@ -55,10 +55,25 @@
 
 	__webpack_require__(5)(app);
 
+	__webpack_require__(6)(app);
+
+
 	app.config(['$routeProvider', function($routeProvider) {
 	  $routeProvider
 	    .when('/articles', {
 	      templateUrl: 'html/list.html',
+	      controller: 'AppCtrl'
+	    })
+	    .when('/newuser', {
+	      templateUrl: 'html/newuser.html',
+	      controller: 'AppCtrl'
+	    })
+	    .when('/login', {
+	      templateUrl: 'html/login.html',
+	      controller: 'AppCtrl'
+	    })
+	    .when('/post', {
+	      templateUrl: 'html/post.html',
 	      controller: 'AppCtrl'
 	    })
 	    .when('/', {
@@ -31830,7 +31845,7 @@
 	'use strict';
 
 	module.exports = function(app) {
-	  app.controller('AppCtrl', ['$scope', '$http', function($scope, $http) {
+	  app.controller('AppCtrl', ['$scope', '$http', '$location', 'Auth', function($scope, $http, $location, Auth) {
 
 	    $scope.getAllPosts = function() {
 	      $http.get('/blogs').success(function(response){
@@ -31838,6 +31853,50 @@
 	      });
 	    };
 
+	    $scope.username = null;
+	    $scope.updateUsername = function() {
+	      Auth.getUsername(function(res) {
+	        console.log(res);
+	        $scope.username = res.data.email;
+	      });
+	    };
+
+	    $scope.submitSignIn = function(user) {
+	      Auth.signIn(user, function() {
+	        // $scope.updateUsername();
+	        $location.path('/');
+	      });
+	    };
+
+	    $scope.logMeOut = function() {
+	      Auth.signOut();
+	      $location.path('/login');
+	      console.log('signed out');
+	    };
+
+	    $scope.signup = true;
+	    $scope.submitSignUp = function(user) {
+	      Auth.createUser(user, function() {
+	        // $scope.updateUsername(); erroring out
+	        $location.path('/login');
+	      });
+	    };
+
+	    $scope.postBlog = function(newBlog) {
+	      $http({
+	          method: 'POST',
+	          url: 'http://localhost:3000/blogs',
+	          headers: {
+	            'Authorization': 'Token ' + Auth.getToken()
+	          },
+	          data: newBlog
+	        })
+	      // ('http://localhost:3000/blogs', newBlog)
+	        .success(function (data){
+	          console.log(data);
+	        $location.path('/');
+	      });
+	    };
 
 	  }]);
 	};
@@ -31880,6 +31939,81 @@
 	      transclude: true
 	    };
 	  });
+	};
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	module.exports = function(app) {
+	  app.factory('Auth', ['$http', '$window', function($http, $window) {
+	    var token;
+	    var user;
+	    var auth = {
+	      createUser: function(user, cb) {
+	        cb = cb || function(){};
+	        $http.post('http://localhost:3000/users', user)
+	          .then(function(res) {
+	            token = $window.localStorage.token = res.data.token;
+	            cb(null);
+	          }, function(res) {
+	            console.log(res);
+	            cb(res.err);
+	          });
+	      },
+	      signIn: function(user, cb) {
+	        cb = cb || function(){};
+	        $http({
+	          method: 'POST',
+	          url: 'http://localhost:3000/login',
+	          headers: {
+	            'Authorization': 'Basic ' + btoa((user.email + ':' + user.password))
+	          }
+	        })
+	          .then(function(res) {
+	            token = $window.localStorage.token = res.data.token;
+	            cb(null);
+	          }, function(res) {
+	            console.log(res);
+	            cb(res);
+	          });
+	      },
+	      getToken: function() {
+	        token = token || $window.localStorage.token;
+	        return token;
+	      },
+	      signOut: function(cb) {
+	        $window.localStorage.token = null;
+	        token = null;
+	        user = null;
+	        if (cb) cb();
+	      },
+	      getUsername: function(cb) {
+	        cb = cb || function(){};
+	        $http({
+	          method: 'GET',
+	          url: 'http://localhost:3000/users',
+	          headers: {
+	            token: auth.getToken()
+	          }
+	        })
+	        .then(function(res) {
+	          user = res.data.email;
+	          cb(res);
+	        },function(res) {
+	          cb(res);
+	        });
+	      },
+	      username: function() {
+	        if (!user) auth.getUsername();
+	        return user;
+	      }
+	    };
+	    return auth;
+	  }]);
 	};
 
 
