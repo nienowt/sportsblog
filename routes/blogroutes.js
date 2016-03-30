@@ -5,9 +5,9 @@ var Keyword = require('../models/keywords');
 var User = require('../models/user');
 var Img = require('../models/images-model');
 var auth = require('../lib/authenticate');
+var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
-
 var T = require('../twitter');
 
 module.exports = (router) => {
@@ -75,6 +75,28 @@ module.exports = (router) => {
         console.log(err);
         res.status(418).json({msg: err});
       });
+    //sending email to users with new blog posting
+    var transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: 'sportsblogcf@gmail.com',
+        pass: process.env.SPORTS_PASS
+      }
+    });
+    var mailOptions = {
+      from: 'Sports Blog <sportsblogcf@gmail.com>',
+      to: 'sportsfanCF41@gmail.com',
+      subject: 'New Sports Blog Post! '+req.body.title,
+      text: 'Here is the latest Sports Blog Post! Title: '+req.body.title+ ' Content: '+req.body.content,
+      html: '<h2>Here is the latest Sports Blog Post!</h2><ul><li>Title: '+req.body.title+'</li><li>Content: '+req.body.content+'</li></ul>'
+    };
+    transporter.sendMail(mailOptions, function(error, info) {
+      if(error) {
+        console.log(error);
+      } else {
+        console.log('Message Sent: ' + info.response);
+      }
+    });
   })
 
   .put('/blogs/:blog', auth, (req, res) => {
