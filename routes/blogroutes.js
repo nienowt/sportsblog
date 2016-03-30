@@ -77,7 +77,7 @@ module.exports = (router) => {
     var mailOptions = {
       from: 'Sports Blog <sportsblogcf@gmail.com>',
       to: 'brandon.feinstein@hotmail.com',
-      subject: 'New Sports Blog Post!: '+req.body.title,
+      subject: 'New Sports Blog Post! '+req.body.title,
       text: 'Here is the latest Sports Blog Post! Title: '+req.body.title+ ' Content: '+req.body.content,
       html: '<h2>Here is the latest Sports Blog Post!</h2><ul><li>Title: '+req.body.title+'</li><li>Content: '+req.body.content+'</li></ul>'
     };
