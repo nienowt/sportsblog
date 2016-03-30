@@ -190,8 +190,8 @@ module.exports = (router) => {
             if(data) console.log(data);
           });
           data.remove();
-        });
-      });
+        })
+      })
       // User.findOne(blog.author, (err, user) => {
       //   user.followedBy.forEach((follower) => {
       //     User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => { //pull might work without going through each follower eg. blog.find(all)/update - pull newcontent blogid
@@ -246,5 +246,5 @@ module.exports = (router) => {
           res.status(404).json({msg: 'Unable to locate ' + blogId});
         }
       });
-  });
+  })
 };
