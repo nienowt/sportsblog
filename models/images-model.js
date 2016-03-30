@@ -3,7 +3,6 @@
 var mongoose = require('mongoose');
 
 var imageSchema = mongoose.Schema({
-  name: String,
   location: String,
   position: String
 });

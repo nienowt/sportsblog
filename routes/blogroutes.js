@@ -3,6 +3,7 @@
 var Blog = require('../models/blog');
 var Keyword = require('../models/keywords');
 var User = require('../models/user');
+var Img = require('../models/images-model');
 var auth = require('../lib/authenticate');
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
@@ -100,7 +101,11 @@ module.exports = (router) => {
       imgData.push(data)
     }).on('end', () =>{
       fileContent = Buffer.concat(imgData);
-      var s3 = new AWS.S3()
+      var s3 = new AWS.S3();
+      if (fileContent.length === 0){
+        res.send('upload failed');
+        return res.end()
+      }
       var params = {Bucket: 'sportsblogimages', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
       s3.upload(params,(err, data) => {
         if (err) {
@@ -108,6 +113,14 @@ module.exports = (router) => {
           return res.end()
         }
         if (data) {
+          var pos = data.key.split('-')[1]
+          var newImage = new Img({position: pos, location: data.Location});  //save image in mongo
+          newImage.save((err, data) => {
+            if(err) console.log(err);
+            Blog.findByIdAndUpdate(req.params.blog,{$push: {'images': data._id}}, (err, data) => {//push img id into blog image array
+              if (err) console.log(err);
+            });
+          })
           res.json(data);
           res.end();
         } else {
@@ -130,7 +143,7 @@ module.exports = (router) => {
       }
       User.findOne(blog.author, (err, user) => {
         user.followedBy.forEach((follower) => {
-          User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => {
+          User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => { //pull might work without going through each follower eg. blog.find(all)/update - pull newcontent blogid
             if(err) console.log(err);
             console.log('article removed from followers content arrays');
           });
