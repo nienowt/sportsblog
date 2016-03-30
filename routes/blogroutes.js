@@ -201,30 +201,5 @@ module.exports = (router) => {
         res.end();
       }
     });
-  })
-
-  .post('/send', (req, res, next) => {
-    var transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-        user: 'sportsblogcf@gmail.com',
-        pass: 'ilovesports'
-      }
-    });
-    var mailOptions = {
-      from: 'Sports Blog <sportsblogcf@gmail.com>',
-      to: 'brandon.feinstein@hotmail.com',
-      subject: 'New Blog Post!',
-      text: 'New blog post on Sports Blog!'
-    };
-    transporter.sendMail(mailOptions, function(error, info) {
-      if(error) {
-        console.log(error);
-        // res.redirect('/');
-      } else {
-        console.log('Message Sent: ' + info.response);
-        // res.redirect('/');
-      }
-    });
   });
 };
