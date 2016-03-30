@@ -175,23 +175,23 @@ module.exports = (router) => {
         if(err) console.log(err);
         console.log('pulled');
       });
-      blog.images.forEach((image) => {
-        Img.findOne(image, (err, data) => {
-          var key = blogId + '-' + data.position;
-          var s3 = new AWS.S3();
-          var params = {
-            Bucket:'sportsblogimages',
-            Delete: {
-              Objects: [{Key:key}]
-            }
-          };
-          s3.deleteObjects(params, (err, data) => {
-            if(err) console.log(err);
-            if(data) console.log(data);
-          });
-          data.remove();
-        })
-      })
+      // blog.images.forEach((image) => {
+      //   Img.findOne(image, (err, data) => {
+      //     var key = blogId + '-' + data.position;
+      //     var s3 = new AWS.S3();
+      //     var params = {
+      //       Bucket:'sportsblogimages',
+      //       Delete: {
+      //         Objects: [{Key:key}]
+      //       }
+      //     };
+      //     s3.deleteObjects(params, (err, data) => {
+      //       if(err) console.log(err);
+      //       if(data) console.log(data);
+      //     });
+      //     data.remove();
+      //   })
+      // })
       // User.findOne(blog.author, (err, user) => {
       //   user.followedBy.forEach((follower) => {
       //     User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => { //pull might work without going through each follower eg. blog.find(all)/update - pull newcontent blogid
