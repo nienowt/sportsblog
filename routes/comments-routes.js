@@ -18,7 +18,7 @@ module.exports = (router) => {
         }
         Blog.findByIdAndUpdate(article, {$push: {'comments': comment._id}}, (err) => {
           if (err) console.log(err);
-          if(!err) console.log('comment saved!');
+          if(!err) res.write('comment saved!');
           res.end();
         });
       });
@@ -28,7 +28,7 @@ module.exports = (router) => {
   .delete('/blogs/:blog/comments/:comment', auth, (req, res) => {
     Blog.findByIdAndUpdate(req.params.blog, {$pull: {'comments': req.params.comment}}, (err) => {
       if(err) console.log(err);
-      if (!err) console.log('comment removed');
+      if (!err) res.write('comment removed');
       res.end();
     });
   });

@@ -28,12 +28,9 @@ var blogSchema = new Schema({
       ref: 'comments'
     }
   ],
-  images: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref:'images'
-    }
-  ]
+  titleImage: String,
+  primary: String,
+  secondary: String
 });
 
 module.exports = mongoose.model('Blog', blogSchema);
