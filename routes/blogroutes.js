@@ -156,6 +156,7 @@ module.exports = (router) => {
 
   .delete('/blogs/:blog', auth, (req, res) => {
     User.findOne(req.decodedToken._id, (err, user) => {
+      debugger;
       if(user.permissions === 'Admin'){
         var blogId = req.params.blog;
         Blog.findOne({_id: blogId}, function(err, blog) {

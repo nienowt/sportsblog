@@ -8,10 +8,10 @@ var expect = chai.expect;
 var request = chai.request;
 var port = 'localhost:3000';
 var token = '';
-var userId = ''
+var userId = '';
 var testParams = {
-  name: 'testName',
-  email: 'test@test.com',
+  name: 'testAdmin',
+  email: 'admin@test.com',
   password: 'testpass',
   permissions: 'Admin'
 };
@@ -28,7 +28,7 @@ describe('post and get routes', () => {
     .end(function(err, res) {
       userId = res.body._id;
       expect(err).to.eql(null);
-      expect(res.body.email).to.eql('test@test.com');
+      expect(res.body.email).to.eql('admin@test.com');
       expect(res.body).to.have.property('_id');
       expect(res.body.password).to.not.eql('testpass');
       done();
@@ -37,7 +37,7 @@ describe('post and get routes', () => {
   it('should login and return a token', (done) => {
     request(port)
     .post('/login')
-    .auth('test@test.com', 'testpass')
+    .auth('admin@test.com', 'testpass')
     .end(function(err, res) {
       expect(err).to.eql(null);
       token = res.headers.token;
@@ -54,7 +54,7 @@ describe('post and get routes', () => {
   };
   it('POST for blog route', (done) => {
     request(port)
-    .post('/testblogs')
+    .post('/blogs')
     .set('Authorization', 'Token ' + token)
     .send(blogTest)
     .end(function (err, res) {
@@ -65,11 +65,12 @@ describe('post and get routes', () => {
   });
   it('should GET Blogs', (done) => {
     request(port)
-      .get('/testblogs')
+      .get('/blogs')
       .set('Authorization', 'Token ' + token)
       .end(function (err, res) {
         expect(err).to.eql(null);
         expect(res.body).to.be.an('array');
+        expect(res.body[0].author).to.eql('testAdmin');
         done();
       });
   });
@@ -80,6 +81,7 @@ describe('post and get routes', () => {
       .end(function (err, res) {
         expect(err).to.eql(null);
         expect(res.body).to.be.an('array');
+        expect(res.body[0].email).to.eql('admin@test.com');
         done();
       });
   });
@@ -87,15 +89,16 @@ describe('post and get routes', () => {
 
 // var userId;
 describe('get, put and delete users/:user route', function (){
-  before((done) => {
-    request(port)
-     .post('/users')
-     .send({name: 'testUser', email: 'testuser@test.com', password: '123'})
-     .end((err, res) => {
-      //  userId = res.body._id;
-       done();
-     });
-  });
+  // before((done) => {
+  //   request(port)
+  //    .post('/users')
+  //    .send(testParams)
+  //    .end((err, res) => {
+  //      console.log(res.body._id);
+  //     //  userId = res.body._id;
+  //      done();
+  //    });
+  // });
   it('should GET', (done) => {
     request(port)
       .get('/users/' + userId)
@@ -103,11 +106,12 @@ describe('get, put and delete users/:user route', function (){
       .end(function (err, res) {
         expect(err).to.eql(null);
         console.log('this is userId get' + userId);
-        expect(res.body.email).to.eql('test@test.com');
+        expect(res.body.email).to.eql('admin@test.com');
         done();
       });
   });
   it('should PUT', (done) => {
+    debugger;
     request(port)
     .put('/users/' + userId)
     .set('Authorization', 'Token ' + token)
@@ -145,7 +149,7 @@ describe('get, put and delete blog/:blog route', function (){
   before((done) => {
     request(port)
     .post('/login')
-    .auth('test@test.com', 'testpass')
+    .auth('admin@test.com', 'testpass')
     .end(function(err, res) {
       token = res.headers.token;
       done();
@@ -203,7 +207,7 @@ describe('get, put and delete blog/:blog route', function (){
     });
   });
   it('should DELETE', (done) => {
-    console.log(blogId);
+      // debugger;
     request(port)
     .delete('/blogs/' + blogId)
     .set('Authorization', 'Token ' + token)
