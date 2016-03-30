@@ -8,7 +8,7 @@ var auth = require('../lib/authenticate');
 var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
-var T = require('../twitter');
+// var T = require('../twitter');
 
 module.exports = (router) => {
 
@@ -30,10 +30,10 @@ module.exports = (router) => {
             res.status(500).json(err);
           }
           //tweets article
-          T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
-            if (err) console.log(err);
-            console.log(data);
-          });
+          // T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
+          //   if (err) console.log(err);
+          //   console.log(data);
+          // });
           //adds article to 'authored' list
           User.findByIdAndUpdate(req.decodedToken._id, {$push: {'authored': data._id}}, (err) => {
             if(err) console.log(err);
@@ -155,42 +155,48 @@ module.exports = (router) => {
 
 
   .delete('/blogs/:blog', auth, (req, res) => {
-    var blogId = req.params.blog;
-
-    Blog.findOne({_id: blogId}, function(err, blog) {
-      console.log(blog.keywords[0]);
-      var keys = blog.keywords[0].split(' ');
-      if (err){
-        console.log(err);
-        res.status(500).json(err);
-      }
-      User.update({$pull: {'newcontent': blogId}}, (err) => { //replaced commented out code
-        if(err) console.log(err);
-        console.log('pulled');
-      });
-      // User.findOne(blog.author, (err, user) => {
-      //   user.followedBy.forEach((follower) => {
-      //     User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => { //pull might work without going through each follower eg. blog.find(all)/update - pull newcontent blogid
-      //       if(err) console.log(err);
-      //       console.log('article removed from followers content arrays');
-      //     });
-      //   });
-      // });
-      keys.forEach((key) => {
-        Keyword.findOne({keyword: key}, (err, keyword) => {
-          if (err) console.log(err);
-          if(keyword) {
-            Keyword.findOneAndUpdate({keyword: key}, {$pull: {'articles': blogId}}, (err) => {
-              if(err) console.log(err);
-              if(keyword.articles.length === 1) {
-                keyword.remove();
+    User.findOne(req.decodedToken._id, (err, user) => {
+      if(user.permissions === 'Admin'){
+        var blogId = req.params.blog;
+        Blog.findOne({_id: blogId}, function(err, blog) {
+          console.log(blog.keywords[0]);
+          var keys = blog.keywords[0].split(' ');
+          if (err){
+            console.log(err);
+            res.status(500).json(err);
+          }
+          User.update({$pull: {'newcontent': blogId}}, (err) => { //replaced commented out code
+            if(err) console.log(err);
+            console.log('pulled');
+          });
+          // User.findOne(blog.author, (err, user) => {
+          //   user.followedBy.forEach((follower) => {
+          //     User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => { //pull might work without going through each follower eg. blog.find(all)/update - pull newcontent blogid
+          //       if(err) console.log(err);
+          //       console.log('article removed from followers content arrays');
+          //     });
+          //   });
+          // });
+          keys.forEach((key) => {
+            Keyword.findOne({keyword: key}, (err, keyword) => {
+              if (err) console.log(err);
+              if(keyword) {
+                Keyword.findOneAndUpdate({keyword: key}, {$pull: {'articles': blogId}}, (err) => {
+                  if(err) console.log(err);
+                  if(keyword.articles.length === 1) {
+                    keyword.remove();
+                  }
+                });
               }
             });
-          }
+          });
+          blog.remove();
+          res.json({msg: 'Blog was removed'});
         });
-      });
-      blog.remove();
-      res.json({msg: 'Blog was removed'});
+      } else {
+        res.write('Denied!');
+        res.end();
+      }
     });
   })
   //get all
@@ -215,7 +221,7 @@ module.exports = (router) => {
       .exec(function(err, blog) {
         if (err) {
           console.log(err);
-          res.status(500).json({msg: 'Internal server error'});
+          return res.status(500).json({msg: 'Internal server error'});
         }
         if (blog) {
           res.json(blog);
