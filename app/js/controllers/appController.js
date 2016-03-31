@@ -31,7 +31,7 @@ module.exports = function(app) {
     $scope.postBlog = function(newBlog) {
       $http({
         method: 'POST',
-        url: 'http://localhost:3000/blogs',
+        url: '/blogs',
         headers: {
           'Authorization': 'Token ' + Auth.getToken()
         },
@@ -44,7 +44,7 @@ module.exports = function(app) {
     };
 
     $scope.uploadImage = function(image) {
-      var idUrl = 'http://localhost:3000/blogs/' + $scope.image.blogID + '/images';
+      var idUrl = '/blogs/' + $scope.image.blogID + '/images';
       var fd = new FormData();
       fd.append('file', $scope.image.imgFile);
       $http({
