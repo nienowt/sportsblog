@@ -7,10 +7,11 @@ module.exports = (router) => {
       if (err) { console.log(err); }
       else {
         var results = data.results;
-        // for (var i = 0; i < 10; i++) { // top ten most recent stories
-        res.json(results);
-      //res.json(results[i].title)
-    // }
+        for (var i = 0; i < 10; i++) { // top ten most recent stories
+        //res.json(results);
+
+    }
+      res.json(results)
       }
     });
   });
