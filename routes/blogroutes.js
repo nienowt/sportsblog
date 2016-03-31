@@ -3,7 +3,7 @@
 var Blog = require('../models/blog');
 var Keyword = require('../models/keywords');
 var User = require('../models/user');
-var Img = require('../models/images-model');
+// var Img = require('../models/images-model');
 var auth = require('../lib/authenticate');
 var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
@@ -14,8 +14,15 @@ module.exports = (router) => {
 
   router.post('/blogs', auth, (req, res) => { //replace auth! !!!
     console.log('blogs POST route hit');
-    console.log(req.body.keywords);
-    var keys = req.body.keywords.split(' ');
+    var keys;
+    if(req.body.keywords){
+      try {
+        keys = req.body.keywords.split(' ');
+      }
+      catch (e) {
+        keys = req.body.keywords;
+      }
+    }
 
     var blog = new Blog(req.body);
     // finding author name from header token
@@ -128,7 +135,7 @@ module.exports = (router) => {
         return res.end();
       }
       // change bucketname!
-      var params = {Bucket: 'sportsysports', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
+      var params = {Bucket: 'sportsblogimages', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
       s3.upload(params,(err, uploadData) => {
         if (err) {
           res.send(err);
@@ -138,9 +145,10 @@ module.exports = (router) => {
           var pos = uploadData.key.split('-')[1];
           console.log(pos);
           console.log(typeof pos);
-          var newImage = new Img({position: pos, location: uploadData.Location});  //save image in mongo
-          newImage.save((err) => {
-            if(err) console.log(err);
+          // --------------------Don't think we need image model anymore?
+          // var newImage = new Img({position: pos, location: uploadData.Location});  //save image in mongo
+          // newImage.save((err) => {
+          //   if(err) console.log(err);
 
             var update = {};
             update[pos] = uploadData.Location;
@@ -150,7 +158,7 @@ module.exports = (router) => {
               if(err) console.log(err);
               console.log('this is the blog' + thisblog);
             });
-          });
+          // });
           res.json(uploadData);
           res.end();
         } else {
@@ -164,6 +172,14 @@ module.exports = (router) => {
 
   .delete('/blogs/:blog', auth, (req, res) => {
     var blogId = req.params.blog;
+    var key = blogId + '-';
+    var s3 = new AWS.S3();
+    var params = {
+      Bucket:'sportsblogimages',
+      Delete: {
+        Objects: [{Key: key + 'primary'},{Key: key + 'secondary'},{Key: key + 'titleImage'}]
+      }
+    };
 
     Blog.findOne({_id: blogId}, function(err, blog) {
       console.log(blog.keywords[0]);
@@ -172,35 +188,17 @@ module.exports = (router) => {
         console.log(err);
         res.status(500).json(err);
       }
-      User.update({$pull: {'newcontent': blogId}}, (err) => { //replaced commented out code
+      //removes article from follows newContent
+      User.update({$pull: {'newcontent': blogId}}, (err) => {
         if(err) console.log(err);
         console.log('pulled');
       });
-      // blog.images.forEach((image) => {
-      //   Img.findOne(image, (err, data) => {
-      //     var key = blogId + '-' + data.position;
-      //     var s3 = new AWS.S3();
-      //     var params = {
-      //       Bucket:'sportsblogimages',
-      //       Delete: {
-      //         Objects: [{Key:key}]
-      //       }
-      //     };
-      //     s3.deleteObjects(params, (err, data) => {
-      //       if(err) console.log(err);
-      //       if(data) console.log(data);
-      //     });
-      //     data.remove();
-      //   })
-      // })
-      // User.findOne(blog.author, (err, user) => {
-      //   user.followedBy.forEach((follower) => {
-      //     User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => { //pull might work without going through each follower eg. blog.find(all)/update - pull newcontent blogid
-      //       if(err) console.log(err);
-      //       console.log('article removed from followers content arrays');
-      //     });
-      //   });
-      // });
+      //deletes images from s3
+      s3.deleteObjects(params, (err, data) => {
+        if(err) console.log(err);
+        if(data) console.log(data);
+      });
+      //removes article from keys
       keys.forEach((key) => {
         Keyword.findOne({keyword: key}, (err, keyword) => {
           if (err) console.log(err);
