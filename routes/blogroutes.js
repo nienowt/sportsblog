@@ -10,6 +10,17 @@ var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
 // var T = require('../twitter');
 
+function checkUser(req, res, next){
+  Blog.findById(req.params.blog, (err, blog) => {
+    if (blog.authorId === req.decodedToken._id) {
+      next();
+    } else {
+      res.write('Permission Denied');
+      res.end();
+    }
+  });
+}
+
 module.exports = (router) => {
 
   router.post('/blogs', auth, (req, res) => { //replace auth! !!!
@@ -30,6 +41,7 @@ module.exports = (router) => {
       .then(user => {
         req.user = user;
         blog.author = user.name;
+        blog.authorId = req.decodedToken._id;
         blog.save(function(err, data) {
           if (err) {
             console.log(err);
@@ -105,7 +117,7 @@ module.exports = (router) => {
     });
   })
 
-  .put('/blogs/:blog', auth, (req, res) => {
+  .put('/blogs/:blog', auth, checkUser, (req, res) => {
     var blogId = req.params.blog;
     var newBlogInfo = req.body;
     Blog.update({_id: blogId}, newBlogInfo, function(err, blog) {
@@ -150,14 +162,14 @@ module.exports = (router) => {
           // newImage.save((err) => {
           //   if(err) console.log(err);
 
-            var update = {};
-            update[pos] = uploadData.Location;
-            console.log(update);
-            console.log(req.params.blog)
-            Blog.findByIdAndUpdate(req.params.blog, {$set: update}, {new: true}, (err, thisblog)=> {
-              if(err) console.log(err);
-              console.log('this is the blog' + thisblog);
-            });
+          var update = {};
+          update[pos] = uploadData.Location;
+          console.log(update);
+          console.log(req.params.blog);
+          Blog.findByIdAndUpdate(req.params.blog, {$set: update}, {new: true}, (err, thisblog)=> {
+            if(err) console.log(err);
+            console.log('this is the blog' + thisblog);
+          });
           // });
           res.json(uploadData);
           res.end();
@@ -170,7 +182,7 @@ module.exports = (router) => {
   })
 
 
-  .delete('/blogs/:blog', auth, (req, res) => {
+  .delete('/blogs/:blog', auth, checkUser, (req, res) => {
     var blogId = req.params.blog;
     var key = blogId + '-';
     var s3 = new AWS.S3();
@@ -245,5 +257,5 @@ module.exports = (router) => {
           res.status(404).json({msg: 'Unable to locate ' + blogId});
         }
       });
-  })
+  });
 };

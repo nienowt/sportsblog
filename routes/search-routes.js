@@ -8,7 +8,7 @@ var Keyword = require('../models/keywords');
 
 module.exports = (router) => {
 
-  router.get('/search/keywords/:keyword',auth, (req, res) => { // --------- maybe don't need this?
+  router.get('/search/keywords/:keyword',auth, (req, res) => {
     var key = req.params.keyword;
     Keyword.find({keyword: key})
     .populate('articles')
@@ -25,7 +25,7 @@ module.exports = (router) => {
   })
 
   .get('/search/:search',auth, (req, res) => {
-    var key = new RegExp(req.params.search, 'i')
+    var key = new RegExp(req.params.search, 'i');
     Blog.find({}, (err, blogs) => {
       var results = [];
       var count = 0;
