@@ -27,7 +27,7 @@ module.exports = (router) => {
     console.log('blogs POST route hit');
     console.log(req.body.keywords);
     var keys;
-      if(req.body.keywords){
+    if(req.body.keywords){
       try {
         keys = req.body.keywords.split(' ');
       }
