@@ -7,7 +7,7 @@ module.exports = function(app) {
     var auth = {
       createUser: function(user, cb) {
         cb = cb || function(){};
-        $http.post('http://localhost:3000/users', user)
+        $http.post('/users', user)
           .then(function(res) {
             token = $window.localStorage.token = res.data.token;
             cb(null);
@@ -20,7 +20,7 @@ module.exports = function(app) {
         cb = cb || function(){};
         $http({
           method: 'POST',
-          url: 'http://localhost:3000/login',
+          url: '/login',
           headers: {
             'Authorization': 'Basic ' + btoa((user.email + ':' + user.password))
           }
