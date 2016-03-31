@@ -31857,17 +31857,8 @@
 	      });
 	    };
 
-	    $scope.username = null;
-	    $scope.updateUsername = function() {
-	      Auth.getUsername(function(res) {
-	        console.log(res);
-	        $scope.username = res.data.email;
-	      });
-	    };
-
 	    $scope.submitSignIn = function(user) {
 	      Auth.signIn(user, function() {
-	        // $scope.updateUsername();
 	        $location.path('/');
 	      });
 	    };
@@ -31881,7 +31872,6 @@
 	    $scope.signup = true;
 	    $scope.submitSignUp = function(user) {
 	      Auth.createUser(user, function() {
-	        // $scope.updateUsername(); erroring out
 	        $location.path('/login');
 	      });
 	    };
@@ -31889,7 +31879,7 @@
 	    $scope.postBlog = function(newBlog) {
 	      $http({
 	        method: 'POST',
-	        url: 'http://localhost:3000/blogs',
+	        url: '/blogs',
 	        headers: {
 	          'Authorization': 'Token ' + Auth.getToken()
 	        },
@@ -31902,7 +31892,7 @@
 	    };
 
 	    $scope.uploadImage = function(image) {
-	      var idUrl = 'http://localhost:3000/blogs/' + $scope.image.blogID + '/images';
+	      var idUrl = '/blogs/' + $scope.image.blogID + '/images';
 	      var fd = new FormData();
 	      fd.append('file', $scope.image.imgFile);
 	      $http({
@@ -31978,7 +31968,7 @@
 	    var auth = {
 	      createUser: function(user, cb) {
 	        cb = cb || function(){};
-	        $http.post('http://localhost:3000/users', user)
+	        $http.post('/users', user)
 	          .then(function(res) {
 	            token = $window.localStorage.token = res.data.token;
 	            cb(null);
@@ -31991,7 +31981,7 @@
 	        cb = cb || function(){};
 	        $http({
 	          method: 'POST',
-	          url: 'http://localhost:3000/login',
+	          url: '/login',
 	          headers: {
 	            'Authorization': 'Basic ' + btoa((user.email + ':' + user.password))
 	          }
@@ -32013,26 +32003,6 @@
 	        token = null;
 	        user = null;
 	        if (cb) cb();
-	      },
-	      getUsername: function(cb) {
-	        cb = cb || function(){};
-	        $http({
-	          method: 'GET',
-	          url: 'http://localhost:3000/users',
-	          headers: {
-	            token: auth.getToken()
-	          }
-	        })
-	        .then(function(res) {
-	          user = res.data.email;
-	          cb(res);
-	        },function(res) {
-	          cb(res);
-	        });
-	      },
-	      username: function() {
-	        if (!user) auth.getUsername();
-	        return user;
 	      }
 	    };
 	    return auth;
