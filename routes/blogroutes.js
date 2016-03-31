@@ -27,7 +27,15 @@ module.exports = (router) => {
   router.post('/blogs', auth, (req, res) => {
     console.log('blogs POST route hit');
     console.log(req.body.keywords);
-    var keys = req.body.keywords.split(' ');
+    var keys;
+      if(req.body.keywords){
+      try {
+        keys = req.body.keywords.split(' ');
+      }
+      catch (e) {
+        keys = req.body.keywords;
+      }
+    }
 
     var blog = new Blog(req.body);
     // finding author name from header token
@@ -35,6 +43,7 @@ module.exports = (router) => {
       .then(user => {
         req.user = user;
         blog.author = user.name;
+        blog.authorId = req.decodedToken._id;
         blog.save(function(err, data) {
           if (err) {
             console.log(err);
