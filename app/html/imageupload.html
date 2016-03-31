@@ -1,0 +1,21 @@
+<section>
+  <h1>Upload Image</h1>
+  <form data-ng-submit="uploadImage(image)">
+    <label for="file">File Location</label>
+    <input
+      type="file" ngf-select
+      ng-model="image.imgFile"
+      name="file"
+      accept="image/*" ngf-max-size="2MB" required
+      ngf-model-invalid="errorFiles">
+    <label for="blogID">Blog ID</label>
+    <input id="blogID" ng-model="image.blogID" type="text" placeholder="abcd0123456789">
+    <label for="position">Image Position</label>
+    <select id="position" data-ng-model="image.position">
+      <option value="titleImage">Title</option>
+      <option value="primary">primary</option>
+      <option value="secondary">Secondary</option>
+    </select>
+    <button type="submit">Upload</button>
+  </form>
+</section>

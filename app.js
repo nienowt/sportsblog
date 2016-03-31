@@ -16,9 +16,11 @@ require(__dirname + '/routes/blogroutes')(router);
 require(__dirname + '/routes/loginRoutes')(router);
 require(__dirname + '/routes/comments-routes')(router);
 require(__dirname + '/routes/search-routes')(router);
-
 app.use('/', router);
+
+app.use(express.static(__dirname + '/public'));
 
 app.listen(port, function() {
   console.log('Server listening on port ' + (port || 3000));
 });
+

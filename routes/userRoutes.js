@@ -142,5 +142,13 @@ module.exports = (router) => {
         res.status(404).json({msg: 'Unable to locate ' + userId});
       }
     });
+  })
+
+  .get('/currentuser', auth, (req, res) => {
+    User.findOne({_id: req.user._id}, (err, data) => {
+      if (err) return handleDBError(err, res);
+
+      res.json({username: data.username});
+    });
   });
 };

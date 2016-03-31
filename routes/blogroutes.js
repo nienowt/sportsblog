@@ -17,7 +17,6 @@ module.exports = (router) => {
     console.log(req.body.keywords);
     var keys = req.body.keywords.split(' ');
 
-
     var blog = new Blog(req.body);
     // finding author name from header token
     User.findOne({_id: req.decodedToken._id})
@@ -29,7 +28,7 @@ module.exports = (router) => {
             console.log(err);
             res.status(500).json(err);
           }
-          //tweets article
+          // tweets article
           // T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
           //   if (err) console.log(err);
           //   console.log(data);
@@ -115,7 +114,7 @@ module.exports = (router) => {
     });
   })
 
-  .put('/blogs/:blog/images',auth, (req, res) => {
+  .put('/blogs/:blog/images', auth, (req, res) => {
     var imgData = [];
     var fileContent;
     req.on('data', (data) => {
@@ -128,7 +127,8 @@ module.exports = (router) => {
         res.send('upload failed');
         return res.end();
       }
-      var params = {Bucket: 'sportsblogimages', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
+      // change bucketname!
+      var params = {Bucket: 'sportsysports', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
       s3.upload(params,(err, uploadData) => {
         if (err) {
           res.send(err);
