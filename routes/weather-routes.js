@@ -4,7 +4,7 @@ module.exports = (router) => {
   weather.setAPPID(process.env.OPEN_WEATHER_TOKEN);
   weather.setLang('en');
   weather.setUnits('imperial');
-  router.get('/whistler', (req, res, next) => {
+  router.get('/whistler', (req, res) => {
     weather.setCityId(6180144);
     weather.getWeatherForecastForDays(3, function(err, obj){
       if(err) {
