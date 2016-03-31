@@ -6,6 +6,7 @@ require('angular-route');
 var app = angular.module('app', ['ngRoute']);
 
 require('./controllers/appController')(app);
+require('./controllers/uploadCtrl')(app);
 
 require('./directives/appDirective')(app);
 
@@ -32,7 +33,7 @@ app.config(['$routeProvider', function($routeProvider) {
     })
     .when('/imageupload', {
       templateUrl: 'html/imageupload.html',
-      controller: 'AppCtrl'
+      controller: 'uploadCtrl'
     })
     .when('/', {
       templateUrl: 'html/list.html',
