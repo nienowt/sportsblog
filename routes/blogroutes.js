@@ -145,9 +145,10 @@ module.exports = (router) => {
             var update = {};
             update[pos] = uploadData.Location;
             console.log(update);
-            Blog.findByIdAndUpdate(req.params.blog, {$set: update}, {new: true}, (err, blog)=> {
+            console.log(req.params.blog)
+            Blog.findByIdAndUpdate(req.params.blog, {$set: update}, {new: true}, (err, thisblog)=> {
               if(err) console.log(err);
-              console.log(blog);
+              console.log('this is the blog' + thisblog);
             });
           });
           res.json(uploadData);
