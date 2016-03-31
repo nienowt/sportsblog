@@ -158,7 +158,7 @@ module.exports = (router) => {
         return res.end();
       }
       // change bucketname!
-      var params = {Bucket: 'sportsblogimages', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
+      var params = {Bucket: 'sportsysports', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
       s3.upload(params,(err, uploadData) => {
         if (err) {
           res.send(err);
@@ -190,7 +190,7 @@ module.exports = (router) => {
     var key = blogId + '-';
     var s3 = new AWS.S3();
     var params = {
-      Bucket:'sportsblogimages',
+      Bucket:'sportsysports',
       Delete: {
         Objects: [{Key: key + 'primary'},{Key: key + 'secondary'},{Key: key + 'titleImage'}]
       }
