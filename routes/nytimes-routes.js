@@ -12,7 +12,7 @@ module.exports = (router) => {
         /*for (var i = 0; i < 10; i++) { // top ten most recent stories
         //res.json(results);
         }*/
-      res.json(results)
+        res.json(results);
       }
     });
   });
