@@ -34,7 +34,13 @@ var userSchema = new Schema({
   following: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref:'User'
+      ref:'User',
+      unique: true
+    },
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref:'keywords',
+      unique: true
     }
   ],
   followedBy: [
@@ -46,7 +52,8 @@ var userSchema = new Schema({
   newContent: [
     {
       type:mongoose.Schema.Types.ObjectId,
-      ref: 'Blog'
+      ref: 'Blog',
+      unique: true
     }
   ],
   permissions: {

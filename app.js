@@ -22,7 +22,12 @@ require(__dirname + '/test/blogtestroutes')(router);
 require(__dirname + '/routes/comments-routes')(router);
 require(__dirname + '/routes/nytimes-routes.js')(router);
 
+require(__dirname + '/routes/comments-routes')(router);
+require(__dirname + '/routes/search-routes')(router);
+require(__dirname + '/routes/keyword-route')(router);
 app.use('/', router);
+
+app.use(express.static(__dirname + '/public'));
 
 app.listen(port, function() {
   console.log('Server listening on port ' + (port || 3000));

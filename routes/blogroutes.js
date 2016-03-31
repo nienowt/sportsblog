@@ -3,20 +3,39 @@
 var Blog = require('../models/blog');
 var Keyword = require('../models/keywords');
 var User = require('../models/user');
-var Img = require('../models/images-model');
+var Subscriber = require('../models/subscribers');
 var auth = require('../lib/authenticate');
 var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
 // var T = require('../twitter');
+// var mailList = [];
+
+function checkUser(req, res, next){
+  Blog.findById(req.params.blog, (err, blog) => {
+    if (blog.authorId === req.decodedToken._id) {
+      next();
+    } else {
+      res.write('Permission Denied');
+      res.end();
+    }
+  });
+}
 
 module.exports = (router) => {
 
-  router.post('/blogs', auth, (req, res) => { //replace auth! !!!
+  router.post('/blogs', auth, (req, res) => {
     console.log('blogs POST route hit');
     console.log(req.body.keywords);
-    var keys = req.body.keywords.split(' ');
-
+    var keys;
+      if(req.body.keywords){
+      try {
+        keys = req.body.keywords.split(' ');
+      }
+      catch (e) {
+        keys = req.body.keywords;
+      }
+    }
 
     var blog = new Blog(req.body);
     // finding author name from header token
@@ -24,12 +43,13 @@ module.exports = (router) => {
       .then(user => {
         req.user = user;
         blog.author = user.name;
+        blog.authorId = req.decodedToken._id;
         blog.save(function(err, data) {
           if (err) {
             console.log(err);
             res.status(500).json(err);
           }
-          //tweets article
+          // tweets article
           // T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
           //   if (err) console.log(err);
           //   console.log(data);
@@ -55,7 +75,13 @@ module.exports = (router) => {
                   res.end();
                 });
               } else if (keyword) {
-                Keyword.findOneAndUpdate({keyword: key}, {$push: {'articles': data._id}}, (err) => {
+                Keyword.findOneAndUpdate({keyword: key}, {$push: {'articles': data._id}}, (err, keyword) => {
+                  //add article to newContent of users following keyword
+                  keyword.followedBy.forEach((follower) => {
+                    User.findByIdAndUpdate(follower, {$addToSet: {'newContent': data._id}}, (err) => {
+                      if(err) console.log(err);
+                    });
+                  });
                   if(err) console.log(err);
                 });
               }
@@ -76,19 +102,23 @@ module.exports = (router) => {
         pass: process.env.SPORTS_PASS
       }
     });
-    var mailOptions = {
-      from: 'Sports Blog <sportsblogcf@gmail.com>',
-      to: 'sportsfanCF41@gmail.com',
-      subject: 'New Sports Blog Post! '+req.body.title,
-      text: 'Here is the latest Sports Blog Post! Title: '+req.body.title+ ' Content: '+req.body.content,
-      html: '<h2>Here is the latest Sports Blog Post!</h2><ul><li>Title: '+req.body.title+'</li><li>Content: '+req.body.content+'</li></ul>'
-    };
-    transporter.sendMail(mailOptions, function(error, info) {
-      if(error) {
-        console.log(error);
-      } else {
-        console.log('Message Sent: ' + info.response);
-      }
+    Subscriber.find({}, (err, subscribers) => {
+      subscribers.forEach((subscriber) => {
+        var mailOptions = {
+          from: 'Sports Blog <sportsblogcf@gmail.com>',
+          to: subscriber.email,
+          subject: 'New Sports Blog Post! '+req.body.title,
+          text: 'Here is the latest Sports Blog Post! Title: '+req.body.title+ ' Content: '+req.body.content,
+          html: '<h2>Here is the latest Sports Blog Post!</h2><ul><li>Title: '+req.body.title+'</li><li>Content: '+req.body.content+'</li></ul>'
+        };
+        transporter.sendMail(mailOptions, function(error, info) {
+          if(error) {
+            console.log(error);
+          } else {
+            console.log('Message Sent: ' + info.response);
+          }
+        });
+      });
     });
   })
 
@@ -125,7 +155,8 @@ module.exports = (router) => {
               if(err) console.log(err);
               if(keyword.articles.length === 1) {
                 keyword.remove();
-  .put('/blogs/:blog/images',auth, (req, res) => {
+
+  .put('/blogs/:blog/images', auth, (req, res) => {
     var imgData = [];
     var fileContent;
     req.on('data', (data) => {
@@ -138,22 +169,24 @@ module.exports = (router) => {
         res.send('upload failed');
         return res.end();
       }
+      // change bucketname!
       var params = {Bucket: 'sportsblogimages', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
-      s3.upload(params,(err, data) => {
+      s3.upload(params,(err, uploadData) => {
         if (err) {
           res.send(err);
           return res.end();
         }
-        if (data) {
-          var pos = data.key.split('-')[1];
-          var newImage = new Img({position: pos, location: data.Location});  //save image in mongo
-          newImage.save((err, data) => {
+        if (uploadData) {
+          var pos = uploadData.key.split('-')[1];
+          var update = {};
+          update[pos] = uploadData.Location;
+          console.log(update);
+          console.log(req.params.blog);
+          Blog.findByIdAndUpdate(req.params.blog, {$set: update}, {new: true}, (err, thisblog)=> {
             if(err) console.log(err);
-            Blog.findByIdAndUpdate(req.params.blog,{$push: {'images': data._id}}, (err) => {//push img id into blog image array
-              if (err) console.log(err);
-            });
+            console.log(thisblog);
           });
-          res.json(data);
+          res.json(uploadData);
           res.end();
         } else {
           res.write('nope');
@@ -164,55 +197,56 @@ module.exports = (router) => {
   })
 
 
-  .delete('/blogs/:blog', auth, (req, res) => {
-    User.findOne(req.decodedToken._id, (err, user) => {
-      if(user.permissions === 'Admin'){
-        var blogId = req.params.blog;
-        Blog.findOne({_id: blogId}, function(err, blog) {
-          console.log(blog.keywords[0]);
-          var keys = blog.keywords[0].split(' ');
-          if (err){
-            console.log(err);
-            res.status(500).json(err);
-          }
-          User.update({$pull: {'newcontent': blogId}}, (err) => { //replaced commented out code
-            if(err) console.log(err);
-            console.log('pulled');
-          });
-          // User.findOne(blog.author, (err, user) => {
-          //   user.followedBy.forEach((follower) => {
-          //     User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => { //pull might work without going through each follower eg. blog.find(all)/update - pull newcontent blogid
-          //       if(err) console.log(err);
-          //       console.log('article removed from followers content arrays');
-          //     });
-          //   });
-          // });
-          keys.forEach((key) => {
-            Keyword.findOne({keyword: key}, (err, keyword) => {
-              if (err) console.log(err);
-              if(keyword) {
-                Keyword.findOneAndUpdate({keyword: key}, {$pull: {'articles': blogId}}, (err) => {
-                  if(err) console.log(err);
-                  if(keyword.articles.length === 1) {
-                    keyword.remove();
-                  }
-                });
+  .delete('/blogs/:blog', auth, checkUser, (req, res) => {
+    var blogId = req.params.blog;
+    var key = blogId + '-';
+    var s3 = new AWS.S3();
+    var params = {
+      Bucket:'sportsblogimages',
+      Delete: {
+        Objects: [{Key: key + 'primary'},{Key: key + 'secondary'},{Key: key + 'titleImage'}]
+      }
+    };
+
+    Blog.findOne({_id: blogId}, function(err, blog) {
+      console.log(blog.keywords[0]);
+      var keys = blog.keywords[0].split(' ');
+      if (err){
+        console.log(err);
+        res.status(500).json(err);
+      }
+      //removes article from follows newContent
+      User.update({$pull: {'newcontent': blogId}}, (err) => {
+        if(err) console.log(err);
+        console.log('pulled');
+      });
+      //deletes images from s3
+      s3.deleteObjects(params, (err, data) => {
+        if(err) console.log(err);
+        if(data) console.log(data);
+      });
+      //removes article from keys
+      keys.forEach((key) => {
+        Keyword.findOne({keyword: key}, (err, keyword) => {
+          if (err) console.log(err);
+          if(keyword) {
+            Keyword.findOneAndUpdate({keyword: key}, {$pull: {'articles': blogId}}, (err) => {
+              if(err) console.log(err);
+              if(keyword.articles.length === 1) {
+                keyword.remove();
               }
             });
-          });
-          blog.remove();
-          res.json({msg: 'Blog was removed'});
+          }
         });
-      } else {
-        res.write('Denied!');
-        res.end();
-      }
+      });
+      blog.remove();
+      res.json({msg: 'Blog was removed'});
     });
   })
   //get all
   .get('/blogs', (req, res) => {
     Blog.find({})
-    .populate('images')
+    .populate('comments')
     .exec(function(err, data) {
       console.log('blog get route hit');
       if (err) {
@@ -227,11 +261,10 @@ module.exports = (router) => {
     var blogId = req.params.blog;
     Blog.findOne({_id: blogId})
       .populate('comments')
-      .populate('images')
       .exec(function(err, blog) {
         if (err) {
           console.log(err);
-          return res.status(500).json({msg: 'Internal server error'});
+          res.status(500).json({msg: 'Internal server error'});
         }
         if (blog) {
           res.json(blog);
@@ -240,6 +273,7 @@ module.exports = (router) => {
         }
       });
   })
+  //subscriber routes
 
   .get('/blogs/articles/:keyword', (req, res) => {
     var key = req.params.keyword;
@@ -248,6 +282,46 @@ module.exports = (router) => {
     .exec((err, data) => {
       res.json(data);
       res.end();
+  .post('/subscribe', (req, res) => {
+    var subscriber = new Subscriber(req.body);
+    var subEmail = req.body.email;
+
+    Subscriber.findOne({email: subEmail}, (err, email) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({msg: 'Internal server error'});
+      }
+      if (email) {
+        res.status(400).json({msg: 'Already Subscribed'});
+      }
+      if (!email) {
+        console.log(req.body.email);
+        subscriber.save(function(err, sub) {
+          if (err) {
+            console.log(err);
+            res.status(500).json(err);
+          }
+          res.json(sub);
+        });
+      }
+    });
+  })
+
+  .post('/unsubscribe', (req, res) => {
+    var unSub = req.body.email;
+    console.log(req.body.email);
+    Subscriber.findOne({email: unSub}, (err, email) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({msg: 'Internal server error'});
+      }
+      if (email) {
+        email.remove();
+        res.json({msg: 'You are unsubscribed'});
+      }
+      if (!email) {
+        res.json({msg: 'Not a subscriber'});
+      }
     });
   });
 

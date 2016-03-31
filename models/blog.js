@@ -9,6 +9,7 @@ var blogSchema = new Schema({
     type: String,
     required: true
   },
+  authorId: String,
   date: {
     type: String,
     required: true
@@ -28,12 +29,9 @@ var blogSchema = new Schema({
       ref: 'comments'
     }
   ],
-  images: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref:'images'
-    }
-  ]
+  titleImage: String,
+  primary: String,
+  secondary: String
 });
 
 module.exports = mongoose.model('Blog', blogSchema);
