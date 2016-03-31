@@ -6,14 +6,14 @@ var bcrypt = require('bcrypt');
 
 module.exports = (router) => {
 
-  router.use('/users/:user', auth, (req, res, next) => {
-    if(req.decodedToken._id === req.params.user) {
-      next();
-    } else {
-      console.log('Permission Denied!');
-      res.end();
-    }
-  });
+  // router.use('/users/:user', auth, (req, res, next) => {
+  //   if(req.decodedToken._id === req.params.user) {
+  //     next();
+  //   } else {
+  //     console.log('Permission Denied!');
+  //     res.end();
+  //   }
+  // });
 
   router.post('/users', (req, res) => {
     console.log('users POST route hit');
@@ -127,10 +127,10 @@ module.exports = (router) => {
     var userId = req.params.user;
     User.findOne({_id: userId})
     .populate('authored')
-    .populate('bookmarked')
+    // .populate('bookmarked')
     .populate('newContent')
-    .populate('followedBy')
-    .populate('following')
+    // .populate('followedBy')
+    // .populate('following')
     .exec(function(err, user) {
       if (err) {
         console.log(err);

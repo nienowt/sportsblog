@@ -4,7 +4,6 @@ var Blog = require('../models/blog');
 var Keyword = require('../models/keywords');
 var User = require('../models/user');
 var Subscriber = require('../models/subscribers');
-var Img = require('../models/images-model');
 var auth = require('../lib/authenticate');
 var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
@@ -12,12 +11,31 @@ AWS.config.region = 'us-west-2';
 // var T = require('../twitter');
 // var mailList = [];
 
+function checkUser(req, res, next){
+  Blog.findById(req.params.blog, (err, blog) => {
+    if (blog.authorId === req.decodedToken._id) {
+      next();
+    } else {
+      res.write('Permission Denied');
+      res.end();
+    }
+  });
+}
+
 module.exports = (router) => {
 
-  router.post('/blogs', auth, (req, res) => { //replace auth! !!!
+  router.post('/blogs', auth, (req, res) => {
     console.log('blogs POST route hit');
     console.log(req.body.keywords);
-    var keys = req.body.keywords.split(' ');
+    var keys;
+      if(req.body.keywords){
+      try {
+        keys = req.body.keywords.split(' ');
+      }
+      catch (e) {
+        keys = req.body.keywords;
+      }
+    }
 
     var blog = new Blog(req.body);
     // finding author name from header token
@@ -25,6 +43,7 @@ module.exports = (router) => {
       .then(user => {
         req.user = user;
         blog.author = user.name;
+        blog.authorId = req.decodedToken._id;
         blog.save(function(err, data) {
           if (err) {
             console.log(err);
@@ -63,7 +82,13 @@ module.exports = (router) => {
                   res.end();
                 });
               } else if (keyword) {
-                Keyword.findOneAndUpdate({keyword: key}, {$push: {'articles': data._id}}, (err) => {
+                Keyword.findOneAndUpdate({keyword: key}, {$push: {'articles': data._id}}, (err, keyword) => {
+                  //add article to newContent of users following keyword
+                  keyword.followedBy.forEach((follower) => {
+                    User.findByIdAndUpdate(follower, {$addToSet: {'newContent': data._id}}, (err) => {
+                      if(err) console.log(err);
+                    });
+                  });
                   if(err) console.log(err);
                 });
               }
@@ -134,7 +159,7 @@ module.exports = (router) => {
         return res.end();
       }
       // change bucketname!
-      var params = {Bucket: 'sportsblogcf', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
+      var params = {Bucket: 'sportsblogimages', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
       s3.upload(params,(err, uploadData) => {
         if (err) {
           res.send(err);
@@ -142,19 +167,13 @@ module.exports = (router) => {
         }
         if (uploadData) {
           var pos = uploadData.key.split('-')[1];
-          console.log(pos);
-          console.log(typeof pos);
-          var newImage = new Img({position: pos, location: uploadData.Location});  //save image in mongo
-          newImage.save((err) => {
+          var update = {};
+          update[pos] = uploadData.Location;
+          console.log(update);
+          console.log(req.params.blog);
+          Blog.findByIdAndUpdate(req.params.blog, {$set: update}, {new: true}, (err, thisblog)=> {
             if(err) console.log(err);
-
-            var update = {};
-            update[pos] = uploadData.Location;
-            console.log(update);
-            Blog.findByIdAndUpdate(req.params.blog, {$set: update}, {new: true}, (err, blog)=> {
-              if(err) console.log(err);
-              console.log(blog);
-            });
+            console.log(thisblog);
           });
           res.json(uploadData);
           res.end();
@@ -167,8 +186,16 @@ module.exports = (router) => {
   })
 
 
-  .delete('/blogs/:blog', auth, (req, res) => {
+  .delete('/blogs/:blog', auth, checkUser, (req, res) => {
     var blogId = req.params.blog;
+    var key = blogId + '-';
+    var s3 = new AWS.S3();
+    var params = {
+      Bucket:'sportsblogimages',
+      Delete: {
+        Objects: [{Key: key + 'primary'},{Key: key + 'secondary'},{Key: key + 'titleImage'}]
+      }
+    };
 
     Blog.findOne({_id: blogId}, function(err, blog) {
       console.log(blog.keywords[0]);
@@ -177,35 +204,17 @@ module.exports = (router) => {
         console.log(err);
         res.status(500).json(err);
       }
-      User.update({$pull: {'newcontent': blogId}}, (err) => { //replaced commented out code
+      //removes article from follows newContent
+      User.update({$pull: {'newcontent': blogId}}, (err) => {
         if(err) console.log(err);
         console.log('pulled');
       });
-      // blog.images.forEach((image) => {
-      //   Img.findOne(image, (err, data) => {
-      //     var key = blogId + '-' + data.position;
-      //     var s3 = new AWS.S3();
-      //     var params = {
-      //       Bucket:'sportsblogimages',
-      //       Delete: {
-      //         Objects: [{Key:key}]
-      //       }
-      //     };
-      //     s3.deleteObjects(params, (err, data) => {
-      //       if(err) console.log(err);
-      //       if(data) console.log(data);
-      //     });
-      //     data.remove();
-      //   })
-      // })
-      // User.findOne(blog.author, (err, user) => {
-      //   user.followedBy.forEach((follower) => {
-      //     User.findByIdAndUpdate(follower, {$pull: {'newContent': blogId}}, (err) => { //pull might work without going through each follower eg. blog.find(all)/update - pull newcontent blogid
-      //       if(err) console.log(err);
-      //       console.log('article removed from followers content arrays');
-      //     });
-      //   });
-      // });
+      //deletes images from s3
+      s3.deleteObjects(params, (err, data) => {
+        if(err) console.log(err);
+        if(data) console.log(data);
+      });
+      //removes article from keys
       keys.forEach((key) => {
         Keyword.findOne({keyword: key}, (err, keyword) => {
           if (err) console.log(err);
