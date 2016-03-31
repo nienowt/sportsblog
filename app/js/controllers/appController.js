@@ -9,17 +9,8 @@ module.exports = function(app) {
       });
     };
 
-    $scope.username = null;
-    $scope.updateUsername = function() {
-      Auth.getUsername(function(res) {
-        console.log(res);
-        $scope.username = res.data.email;
-      });
-    };
-
     $scope.submitSignIn = function(user) {
       Auth.signIn(user, function() {
-        // $scope.updateUsername();
         $location.path('/');
       });
     };
@@ -33,7 +24,6 @@ module.exports = function(app) {
     $scope.signup = true;
     $scope.submitSignUp = function(user) {
       Auth.createUser(user, function() {
-        // $scope.updateUsername(); erroring out
         $location.path('/login');
       });
     };

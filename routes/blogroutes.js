@@ -8,8 +8,7 @@ var auth = require('../lib/authenticate');
 var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
-// var T = require('../twitter');
-// var mailList = [];
+var T = require('../lib/twitter');
 
 function checkUser(req, res, next){
   Blog.findById(req.params.blog, (err, blog) => {
@@ -28,7 +27,7 @@ module.exports = (router) => {
     console.log('blogs POST route hit');
     console.log(req.body.keywords);
     var keys;
-      if(req.body.keywords){
+    if(req.body.keywords){
       try {
         keys = req.body.keywords.split(' ');
       }
@@ -50,10 +49,10 @@ module.exports = (router) => {
             res.status(500).json(err);
           }
           // tweets article
-          // T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
-          //   if (err) console.log(err);
-          //   console.log(data);
-          // });
+          T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
+            if (err) console.log(err);
+            console.log(data);
+          });
           //adds article to 'authored' list
           User.findByIdAndUpdate(req.decodedToken._id, {$push: {'authored': data._id}}, (err) => {
             if(err) console.log(err);
@@ -178,7 +177,7 @@ module.exports = (router) => {
           res.json(uploadData);
           res.end();
         } else {
-          res.write('nope');
+          res.write('upload failed');
           res.end();
         }
       });
@@ -196,7 +195,6 @@ module.exports = (router) => {
         Objects: [{Key: key + 'primary'},{Key: key + 'secondary'},{Key: key + 'titleImage'}]
       }
     };
-
     Blog.findOne({_id: blogId}, function(err, blog) {
       console.log(blog.keywords[0]);
       var keys = blog.keywords[0].split(' ');
@@ -262,12 +260,11 @@ module.exports = (router) => {
         }
       });
   })
-  //subscriber routes
 
+  //subscriber routes
   .post('/subscribe', (req, res) => {
     var subscriber = new Subscriber(req.body);
     var subEmail = req.body.email;
-
     Subscriber.findOne({email: subEmail}, (err, email) => {
       if (err) {
         console.log(err);

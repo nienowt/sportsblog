@@ -57,7 +57,6 @@ describe('Testing POST and GET for /users routes', () => {
   });
 });
 
-
 describe('get, put and delete users/:user route', function (){
   after(function(done) {
     mongoose.connection.db.dropDatabase(function() {

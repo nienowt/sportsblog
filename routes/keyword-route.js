@@ -5,8 +5,6 @@ var Keyword = require('../models/keywords');
 var User = require('../models/user');
 var auth = require('../lib/authenticate');
 
-
-
 module.exports = (router) => {
 
   router.post('/keywords/:keyword/follow',auth, (req, res) => {

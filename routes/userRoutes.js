@@ -6,14 +6,14 @@ var bcrypt = require('bcrypt');
 
 module.exports = (router) => {
 
-  // router.use('/users/:user', auth, (req, res, next) => {
-  //   if(req.decodedToken._id === req.params.user) {
-  //     next();
-  //   } else {
-  //     console.log('Permission Denied!');
-  //     res.end();
-  //   }
-  // });
+  router.use('/users/:user', auth, (req, res, next) => {
+    if(req.decodedToken._id === req.params.user) {
+      next();
+    } else {
+      console.log('Permission Denied!');
+      res.end();
+    }
+  });
 
   router.post('/users', (req, res) => {
     console.log('users POST route hit');
@@ -26,8 +26,8 @@ module.exports = (router) => {
       res.json(user);
     });
   })
-
-  .post('/users/bookmark', auth, (req, res) =>{ //represents what would happen if a 'bookmark' or 'like' button was hit
+  //represents what would happen if a 'bookmark' or 'like' button was hit
+  .post('/users/bookmark', auth, (req, res) =>{
     var userId = req.decodedToken._id;
     var articleId = req.body.articleId;
     User.findByIdAndUpdate(userId, {$push: {'bookmarked': articleId}}, (err) => {
@@ -36,8 +36,8 @@ module.exports = (router) => {
       res.end();
     });
   })
-
-  .delete('/users/bookmark', auth, (req, res) => { //removes bookmark
+  //removes bookmark
+  .delete('/users/bookmark', auth, (req, res) => {
     var userId = req.decodedToken._id;
     var articleId = req.body.articleId;
     User.findByIdAndUpdate(userId, {$pull: {'bookmarked': articleId}}, (err) => {
@@ -46,8 +46,8 @@ module.exports = (router) => {
       res.end();
     });
   })
-
-  .post('/users/follow', auth, (req, res) => { //follows an author, adds follower to author
+  //follows an author, adds follower to author
+  .post('/users/follow', auth, (req, res) => {
     var userId = req.decodedToken._id;
     var authorId = req.body.authorId;
     User.findByIdAndUpdate(userId, {$push: {'following': authorId}}, (err) => {
@@ -60,8 +60,8 @@ module.exports = (router) => {
       res.end();
     });
   })
-
-  .delete('/users/follow', auth, (req, res) => { //unfollows an author, removes follower from author
+  //unfollows an author, removes follower from author
+  .delete('/users/follow', auth, (req, res) => {
     var userId = req.decodedToken._id;
     var authorId = req.body.authorId;
     User.findByIdAndUpdate(userId, {$pull: {'following': authorId}}, (err) => {
@@ -114,7 +114,6 @@ module.exports = (router) => {
     .populate('followedBy')
     .populate('following')
     .exec(function(err, data) {
-      console.log('get route hit');
       if (err) {
         console.log(err);
         res.status(500).json({msg: 'Internal Server Error'});
@@ -142,13 +141,6 @@ module.exports = (router) => {
         res.status(404).json({msg: 'Unable to locate ' + userId});
       }
     });
-  })
-
-  .get('/currentuser', auth, (req, res) => {
-    User.findOne({_id: req.user._id}, (err, data) => {
-      if (err) return handleDBError(err, res);
-
-      res.json({username: data.username});
-    });
   });
+
 };

@@ -42,26 +42,6 @@ module.exports = function(app) {
         token = null;
         user = null;
         if (cb) cb();
-      },
-      getUsername: function(cb) {
-        cb = cb || function(){};
-        $http({
-          method: 'GET',
-          url: 'http://localhost:3000/users',
-          headers: {
-            token: auth.getToken()
-          }
-        })
-        .then(function(res) {
-          user = res.data.email;
-          cb(res);
-        },function(res) {
-          cb(res);
-        });
-      },
-      username: function() {
-        if (!user) auth.getUsername();
-        return user;
       }
     };
     return auth;

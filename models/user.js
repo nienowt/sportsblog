@@ -61,7 +61,6 @@ var userSchema = new Schema({
     default: 'User'
   }
 });
-// the pre save function doesn't work for put routes.
 userSchema.pre('save', function(next) {
   this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
   next();
@@ -72,7 +71,7 @@ userSchema.methods.compareHash = function(password) {
 };
 
 userSchema.methods.generateToken = function() {
-  return jwt.sign({ _id: this._id}, process.env.SECRET ||'change me');
+  return jwt.sign({ _id: this._id}, process.env.SECRET ||'sportyspice');
 };
 
 module.exports = mongoose.model('User', userSchema);
