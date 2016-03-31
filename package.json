@@ -26,6 +26,7 @@
     "gulp-mocha": "^2.2.0"
   },
   "dependencies": {
+    "aws-sdk": "^2.2.48",
     "bcrypt": "^0.8.5",
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
@@ -35,6 +36,9 @@
     "nfl_scores": "^0.1.0",
     "nbapackage": "git://github.com/jrmils89/nba-package.git",
     "openweather-apis": "^3.0.2"
+    "nodemailer": "^2.3.0",
+    "nyt-top": "^1.0.5",
+    "twit": "^2.2.3"
   },
   "homepage": "https://github.com/greydays/sportsblog#readme"
 }

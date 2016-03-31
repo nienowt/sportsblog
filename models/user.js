@@ -35,10 +35,6 @@ var userSchema = new Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref:'User'
-    },
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'keywords'
     }
   ],
   followedBy: [
@@ -52,7 +48,11 @@ var userSchema = new Schema({
       type:mongoose.Schema.Types.ObjectId,
       ref: 'Blog'
     }
-  ]
+  ],
+  permissions: {
+    type: String,
+    default: 'User'
+  }
 });
 // the pre save function doesn't work for put routes.
 userSchema.pre('save', function(next) {
