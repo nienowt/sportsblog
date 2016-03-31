@@ -32,6 +32,7 @@
     "jsonwebtoken": "^5.7.0",
     "mongoose": "^4.4.7",
     "morgan": "^1.7.0",
+    "nfl_scores": "^0.1.0",
     "openweather-apis": "^3.0.2"
   },
   "homepage": "https://github.com/greydays/sportsblog#readme"
