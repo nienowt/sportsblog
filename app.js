@@ -15,6 +15,7 @@ require(__dirname + '/routes/userRoutes')(router);
 require(__dirname + '/routes/blogroutes')(router);
 require(__dirname + '/routes/loginRoutes')(router);
 require(__dirname + '/routes/comments-routes')(router);
+require(__dirname + '/routes/search-routes')(router);
 
 app.use('/', router);
 
