@@ -8,7 +8,7 @@ var auth = require('../lib/authenticate');
 var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
-var T = require('../twitter');
+// var T = require('../twitter');
 
 module.exports = (router) => {
 
@@ -16,7 +16,6 @@ module.exports = (router) => {
     console.log('blogs POST route hit');
     console.log(req.body.keywords);
     var keys = req.body.keywords.split(' ');
-
 
     var blog = new Blog(req.body);
     // finding author name from header token
@@ -29,11 +28,11 @@ module.exports = (router) => {
             console.log(err);
             res.status(500).json(err);
           }
-          //tweets article
-          T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
-            if (err) console.log(err);
-            console.log(data);
-          });
+          // tweets article
+          // T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
+          //   if (err) console.log(err);
+          //   console.log(data);
+          // });
           //adds article to 'authored' list
           User.findByIdAndUpdate(req.decodedToken._id, {$push: {'authored': data._id}}, (err) => {
             if(err) console.log(err);
@@ -115,7 +114,7 @@ module.exports = (router) => {
     });
   })
 
-  .put('/blogs/:blog/images',auth, (req, res) => {
+  .put('/blogs/:blog/images', auth, (req, res) => {
     var imgData = [];
     var fileContent;
     req.on('data', (data) => {
@@ -128,7 +127,8 @@ module.exports = (router) => {
         res.send('upload failed');
         return res.end();
       }
-      var params = {Bucket: 'sportsblogimages', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
+      // change bucketname!
+      var params = {Bucket: 'sportsysports', Key: req.params.blog + '-' + req.headers.position, Body:fileContent, ACL:'public-read'};
       s3.upload(params,(err, uploadData) => {
         if (err) {
           res.send(err);

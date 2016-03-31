@@ -1,0 +1,14 @@
+<section  data-ng-submit= "postBlog(newBlog)">
+  <form>
+    <label for="blog_title">Headline/Title</label>
+    <input data-ng-model="newBlog.title" id="blog_title" type="text" placeholder="Catchy Headline">
+    <label for="blog_date">Date</label>
+    <input data-ng-model="newBlog.date" id="blog_date" type="date">
+    <label for="blog_keywords">Keywords</label>
+    <input data-ng-model="newBlog.keywords" id="blog_keywords" type="text" placeholder="sportsball... etc.">
+    <label for="blog_content">Content</label>
+    <textarea data-ng-model="newBlog.content" id="blog_content" cols="30" rows="10" placeholder="Text goes here."></textarea>
+    <button type="submit">Submit</button>
+  </form>
+</section>
+

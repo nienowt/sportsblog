@@ -19,11 +19,21 @@
     "url": "https://github.com/greydays/sportsblog/issues"
   },
   "devDependencies": {
+    "angular": "^1.5.0",
+    "angular-base64": "^2.0.5",
+    "angular-cookies": "^1.5.0",
+    "angular-route": "^1.5.0",
     "chai": "^3.5.0",
     "chai-http": "^2.0.1",
     "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-clean": "^0.3.2",
+    "gulp-cssnano": "^2.1.1",
     "gulp-eslint": "^2.0.0",
-    "gulp-mocha": "^2.2.0"
+    "gulp-mocha": "^2.2.0",
+    "gulp-sass": "^2.2.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "webpack-stream": "^3.1.0"
   },
   "dependencies": {
     "aws-sdk": "^2.2.48",
@@ -33,6 +43,7 @@
     "jsonwebtoken": "^5.7.0",
     "mongoose": "^4.4.7",
     "morgan": "^1.7.0",
+    "node-sass": "^3.4.2",
     "nodemailer": "^2.3.0",
     "twit": "^2.2.3"
   },
