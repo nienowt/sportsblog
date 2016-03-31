@@ -3,7 +3,6 @@
 var Blog = require('../models/blog');
 var Keyword = require('../models/keywords');
 var User = require('../models/user');
-// var Img = require('../models/images-model');
 var auth = require('../lib/authenticate');
 var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
@@ -23,7 +22,7 @@ function checkUser(req, res, next){
 
 module.exports = (router) => {
 
-  router.post('/blogs', auth, (req, res) => { //replace auth! !!!
+  router.post('/blogs', auth, (req, res) => {
     console.log('blogs POST route hit');
     var keys;
     if(req.body.keywords){
@@ -80,7 +79,13 @@ module.exports = (router) => {
                   res.end();
                 });
               } else if (keyword) {
-                Keyword.findOneAndUpdate({keyword: key}, {$push: {'articles': data._id}}, (err) => {
+                Keyword.findOneAndUpdate({keyword: key}, {$push: {'articles': data._id}}, (err, keyword) => {
+                  //add article to newContent of users following keyword
+                  keyword.followedBy.forEach((follower) => {
+                    User.findByIdAndUpdate(follower, {$addToSet: {'newContent': data._id}}, (err) => {
+                      if(err) console.log(err);
+                    });
+                  });
                   if(err) console.log(err);
                 });
               }
@@ -155,13 +160,6 @@ module.exports = (router) => {
         }
         if (uploadData) {
           var pos = uploadData.key.split('-')[1];
-          console.log(pos);
-          console.log(typeof pos);
-          // --------------------Don't think we need image model anymore?
-          // var newImage = new Img({position: pos, location: uploadData.Location});  //save image in mongo
-          // newImage.save((err) => {
-          //   if(err) console.log(err);
-
           var update = {};
           update[pos] = uploadData.Location;
           console.log(update);
@@ -170,7 +168,6 @@ module.exports = (router) => {
             if(err) console.log(err);
             console.log('this is the blog' + thisblog);
           });
-          // });
           res.json(uploadData);
           res.end();
         } else {
