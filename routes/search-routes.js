@@ -8,7 +8,7 @@ var Keyword = require('../models/keywords');
 
 module.exports = (router) => {
 
-  router.get('/search/keywords/:keyword',auth, (req, res) => {
+  router.get('/search/keywords/:keyword',auth, (req, res) => { // --------- maybe don't need this?
     var key = req.params.keyword;
     Keyword.find({keyword: key})
     .populate('articles')
@@ -25,13 +25,13 @@ module.exports = (router) => {
   })
 
   .get('/search/:search',auth, (req, res) => {
-    var key = req.params.search;
+    var key = new RegExp(req.params.search, 'i')
     Blog.find({}, (err, blogs) => {
       var results = [];
       var count = 0;
       blogs.forEach((blog) => {
         count += 1;
-        if (blog.title === key || blog.author === key || blog.date === key) {
+        if (blog.title.search(key) !== -1 || blog.author.search(key) !== -1 || blog.date === key || blog.keywords[0].search(key) !== -1) {
           results.push(blog);
         }
       });
