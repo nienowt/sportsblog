@@ -1,5 +1,5 @@
 'use strict';
-var nflScores = require("nfl_scores");
+var nflScores = require('nfl_scores');
 
 module.exports = (router) => {
   router.get('/scores/nfl', (req, res) => {
@@ -7,7 +7,7 @@ module.exports = (router) => {
       if(err) {
         console.log(err);
       }
-    res.json(scores);
+      res.json(scores);
     });
-  })
-}
+  });
+};

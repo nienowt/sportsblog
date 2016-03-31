@@ -7,8 +7,8 @@ chai.use(chaihttp);
 var expect = chai.expect;
 var request = chai.request;
 var port = 'localhost:3000';
-var token = '';
-var userId = '';
+var token;
+var userId;
 var blogId;
 var commentsId;
 var testParams = {
