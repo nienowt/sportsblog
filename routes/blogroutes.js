@@ -246,5 +246,5 @@ module.exports = (router) => {
           res.status(404).json({msg: 'Unable to locate ' + blogId});
         }
       });
-  })
+  });
 };
