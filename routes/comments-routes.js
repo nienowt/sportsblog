@@ -18,8 +18,11 @@ module.exports = (router) => {
         }
         Blog.findByIdAndUpdate(article, {$push: {'comments': comment._id}}, (err) => {
           if (err) console.log(err);
-          if(!err) res.write('comment saved!');
-          res.end();
+          if(!err){
+            console.log('comment saved!');
+            res.send(comment);
+            res.end();
+          }
         });
       });
     });
@@ -28,8 +31,11 @@ module.exports = (router) => {
   .delete('/blogs/:blog/comments/:comment', auth, (req, res) => {
     Blog.findByIdAndUpdate(req.params.blog, {$pull: {'comments': req.params.comment}}, (err) => {
       if(err) console.log(err);
-      if (!err) res.write('comment removed');
-      res.end();
+      if (!err) {
+        console.log('comment removed');
+        res.send('comment removed');
+        res.end();
+      }
     });
   });
 };
