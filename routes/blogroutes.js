@@ -33,10 +33,10 @@ module.exports = (router) => {
           //   if (err) console.log(err);
           //   console.log(data);
           // });
-          // adds article to 'authored' list
-          // User.findByIdAndUpdate(req.decodedToken._id, {$push: {'authored': data._id}}, (err) => {
-          //   if(err) console.log(err);
-          // });
+          //adds article to 'authored' list
+          User.findByIdAndUpdate(req.decodedToken._id, {$push: {'authored': data._id}}, (err) => {
+            if(err) console.log(err);
+          });
           //adds article to every follower's newContent list
           user.followedBy.forEach((follower) => {
             User.findByIdAndUpdate(follower, {$push: {'newContent': data._id}}, (err) => {
