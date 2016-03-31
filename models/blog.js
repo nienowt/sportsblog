@@ -9,6 +9,7 @@ var blogSchema = new Schema({
     type: String,
     required: true
   },
+  authorId: String,
   date: {
     type: String,
     required: true
