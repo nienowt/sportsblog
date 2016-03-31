@@ -9,18 +9,18 @@ module.exports = (router) => {
           res.json(data);
         });
       }
-    })
-  })
+    });
+  });
   router.get('/scores/mlb/mariners', (req, res) => {
     mlb.getGameUrl('mariners', new Date(2016,3, 29), function(err, url){
       if (!err){
         mlb.getGameInfo(url, function(err, data){
-          console.log('Mariner Information')
+          console.log('Mariner Information');
           res.json(data);
         });
       }
-    })
-  })
+    });
+  });
   router.get('/scores/mlb/cardinals', (req, res) => {
     mlb.getGameUrl('cardinals', new Date(2016,3, 29), function(err, url){
       if (!err){
@@ -29,8 +29,8 @@ module.exports = (router) => {
           res.json(data);
         });
       }
-    })
-  })
+    });
+  });
   router.get('/scores/mlb/twins', (req, res) => {
     mlb.getGameUrl('twins', new Date(2016,3, 29), function(err, url){
       if (!err){
@@ -39,8 +39,8 @@ module.exports = (router) => {
           res.json(data);
         });
       }
-    })
-  })
+    });
+  });
   router.get('/scores/mlb/yankees', (req, res) => {
     mlb.getGameUrl('yankees', new Date(2016,3, 29), function(err, url){
       if (!err){
@@ -49,8 +49,8 @@ module.exports = (router) => {
           res.json(data);
         });
       }
-    })
-  })
+    });
+  });
   router.get('/scores/mlb/royals', (req, res) => {
     mlb.getGameUrl('royals', new Date(2016,3, 29), function(err, url){
       if (!err){
@@ -59,8 +59,8 @@ module.exports = (router) => {
           res.json(data);
         });
       }
-    })
-  })
+    });
+  });
   router.get('/scores/mlb/athletics', (req, res) => {
     mlb.getGameUrl('athletics', new Date(2016,3, 29), function(err, url){
       if (!err){
@@ -69,8 +69,8 @@ module.exports = (router) => {
           res.json(data);
         });
       }
-    })
-  })
+    });
+  });
   router.get('/scores/mlb/angels', (req, res) => {
     mlb.getGameUrl('angels', new Date(2016,3, 29), function(err, url){
       if (!err){
@@ -79,6 +79,6 @@ module.exports = (router) => {
           res.json(data);
         });
       }
-    })
-  })
-}
+    });
+  });
+};

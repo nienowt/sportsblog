@@ -8,7 +8,7 @@ var auth = require('../lib/authenticate');
 var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
-var T = require('../lib/twitter');
+// var T = require('../lib/twitter');
 
 function checkUser(req, res, next){
   Blog.findById(req.params.blog, (err, blog) => {
@@ -49,10 +49,10 @@ module.exports = (router) => {
             res.status(500).json(err);
           }
           // tweets article
-          T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
-            if (err) console.log(err);
-            console.log(data);
-          });
+          // T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
+          //   if (err) console.log(err);
+          //   console.log(data);
+          // });
           //adds article to 'authored' list
           User.findByIdAndUpdate(req.decodedToken._id, {$push: {'authored': data._id}}, (err) => {
             if(err) console.log(err);
