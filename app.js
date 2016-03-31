@@ -15,7 +15,7 @@ require(__dirname + '/routes/userRoutes')(router);
 require(__dirname + '/routes/blogroutes')(router);
 require(__dirname + '/routes/loginRoutes')(router);
 require(__dirname + '/routes/weather-routes')(router);
-
+require(__dirname + '/routes/nba-routes')(router);
 app.use('/', router);
 
 app.listen(port, function() {
