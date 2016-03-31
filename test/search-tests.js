@@ -59,7 +59,6 @@ describe('Testing Search route', () => {
     .get('/search/keywords/basketball')
     .set('Authorization', 'Token ' + token)
     .end(function (err, res) {
-      // commentsId = res.body._id;
       expect(err).to.eql(null);
       expect(res.body).to.be.an('array');
       done();
@@ -71,7 +70,6 @@ describe('Testing Search route', () => {
     .set('Authorization', 'Token ' + token)
     .end((err, res) => {
       expect(err).to.eql(null);
-      console.log('-------------------> ' + res);
       var searchRes = JSON.parse(res.text);
       expect(searchRes[0].title).to.eql('Hats');
       done();

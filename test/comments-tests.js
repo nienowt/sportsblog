@@ -17,13 +17,7 @@ var testParams = {
   password: 'testpass',
   permissions: 'Admin'
 };
-// var blogTest = {
-//   title: 'Basketball Is Fun2',
-//   date: 'May 29',
-//   author: 'Donald Trump',
-//   content: 'This is an article about sports',
-//   keywords: 'basketball politics'
-// };
+
 process.env.MONGOLAB_URI = 'mongodb://localhost/test3';
 
 describe('Testing POST for /blogs/:blog/comments route', () => {

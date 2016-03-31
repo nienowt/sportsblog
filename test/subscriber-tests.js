@@ -10,7 +10,6 @@ var port = 'localhost:3000';
 
 process.env.MONGOLAB_URI = 'mongodb://localhost/test5';
 
-
 describe('Testing POST subscribe and unsubscribe routes', () => {
   after(function(done) {
     mongoose.connection.db.dropDatabase(function() {

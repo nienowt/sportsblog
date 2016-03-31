@@ -1,9 +1,7 @@
 'use strict';
 
 var Blog = require('../models/blog');
-
 var auth = require('../lib/authenticate');
-
 var Keyword = require('../models/keywords');
 
 module.exports = (router) => {
