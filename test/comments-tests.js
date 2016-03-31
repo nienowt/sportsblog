@@ -10,6 +10,7 @@ var port = 'localhost:3000';
 var token = '';
 var userId = '';
 var blogId;
+var commentsId;
 var testParams = {
   name: 'testAdmin3',
   email: 'admin@test3.com',
@@ -60,16 +61,24 @@ describe('Testing POST for /blogs/:blog/comments route', () => {
     });
   });
   it('POST for comments route', (done) => {
-    console.log('----------------> ' + blogId);
     request(port)
     .post('/blogs/' + blogId + '/comments')
     .set('Authorization', 'Token ' + token)
     .send({comment: 'Yeee!'})
     .end(function (err, res) {
-      // debugger;
+      commentsId = res.body._id;
       expect(err).to.eql(null);
-      console.log('This is res' + res.body);
       expect(res.body.comment).to.eql('Yeee!');
+      done();
+    });
+  });
+  it('DELETE for comments route', (done) => {
+    request(port)
+    .delete('/blogs/' + blogId + '/comments/' + commentsId)
+    .set('Authorization', 'Token ' + token)
+    .end((err, res) => {
+      expect(err).to.eql(null);
+      expect(res.text).to.equal('comment removed');
       done();
     });
   });
