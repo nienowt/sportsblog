@@ -275,8 +275,6 @@ module.exports = (router) => {
             res.status(500).json(err);
           }
           res.json(sub);
-          // mailList.push(sub.email);
-          // console.log(mailList);
         });
       }
     });
