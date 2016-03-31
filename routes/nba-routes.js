@@ -6,4 +6,4 @@ module.exports = (router) => {
       res.json(data);
     });
   });
-}
+};
