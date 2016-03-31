@@ -32,6 +32,7 @@
     "express": "^4.13.4",
     "jsonwebtoken": "^5.7.0",
     "mongoose": "^4.4.7",
+    "morgan": "^1.7.0",
     "nodemailer": "^2.3.0",
     "nyt-top": "^1.0.5",
     "twit": "^2.2.3"
