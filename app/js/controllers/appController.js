@@ -54,23 +54,28 @@ module.exports = function(app) {
     };
 
     $scope.uploadImage = function(image) {
-      var idUrl = 'http://localhost:3000/blogs/' + $scope.image.blogID + '/images';
+      var idUrl = 'http://localhost:3000/blogs/' + image.blogID + '/images';
       var fd = new FormData();
-      fd.append('file', $scope.image.imgFile);
+      fd.append('file', image.imgFile);
+      var encodeImg = btoa(fd);
+      console.log(atob(encodeImg));
       $http({
         method: 'PUT',
         url: idUrl,
         headers: {
           'Authorization': 'Token ' + Auth.getToken(),
-          'Content-Type': 'multipart/mixed',
-          'Position': $scope.image.position
+          'Content-Type': 'application/json',
+          'Position': image.position
         },
-        data: fd
+        body: encodeImg
       })
       .success(function (data){
         console.log(data);
         $location.path('/');
-      });
+      })
+      .error(function (data){
+        console.log(data);
+      })
     };
 
   }]);
