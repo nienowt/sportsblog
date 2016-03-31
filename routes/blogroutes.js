@@ -3,11 +3,13 @@
 var Blog = require('../models/blog');
 var Keyword = require('../models/keywords');
 var User = require('../models/user');
+var Subscriber = require('../models/subscribers');
 var auth = require('../lib/authenticate');
 var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
 // var T = require('../twitter');
+// var mailList = [];
 
 function checkUser(req, res, next){
   Blog.findById(req.params.blog, (err, blog) => {
@@ -24,15 +26,8 @@ module.exports = (router) => {
 
   router.post('/blogs', auth, (req, res) => {
     console.log('blogs POST route hit');
-    var keys;
-    if(req.body.keywords){
-      try {
-        keys = req.body.keywords.split(' ');
-      }
-      catch (e) {
-        keys = req.body.keywords;
-      }
-    }
+    console.log(req.body.keywords);
+    var keys = req.body.keywords.split(' ');
 
     var blog = new Blog(req.body);
     // finding author name from header token
@@ -40,7 +35,6 @@ module.exports = (router) => {
       .then(user => {
         req.user = user;
         blog.author = user.name;
-        blog.authorId = req.decodedToken._id;
         blog.save(function(err, data) {
           if (err) {
             console.log(err);
@@ -106,23 +100,27 @@ module.exports = (router) => {
         pass: process.env.SPORTS_PASS
       }
     });
-    var mailOptions = {
-      from: 'Sports Blog <sportsblogcf@gmail.com>',
-      to: 'sportsfanCF41@gmail.com',
-      subject: 'New Sports Blog Post! '+req.body.title,
-      text: 'Here is the latest Sports Blog Post! Title: '+req.body.title+ ' Content: '+req.body.content,
-      html: '<h2>Here is the latest Sports Blog Post!</h2><ul><li>Title: '+req.body.title+'</li><li>Content: '+req.body.content+'</li></ul>'
-    };
-    transporter.sendMail(mailOptions, function(error, info) {
-      if(error) {
-        console.log(error);
-      } else {
-        console.log('Message Sent: ' + info.response);
-      }
+    Subscriber.find({}, (err, subscribers) => {
+      subscribers.forEach((subscriber) => {
+        var mailOptions = {
+          from: 'Sports Blog <sportsblogcf@gmail.com>',
+          to: subscriber.email,
+          subject: 'New Sports Blog Post! '+req.body.title,
+          text: 'Here is the latest Sports Blog Post! Title: '+req.body.title+ ' Content: '+req.body.content,
+          html: '<h2>Here is the latest Sports Blog Post!</h2><ul><li>Title: '+req.body.title+'</li><li>Content: '+req.body.content+'</li></ul>'
+        };
+        transporter.sendMail(mailOptions, function(error, info) {
+          if(error) {
+            console.log(error);
+          } else {
+            console.log('Message Sent: ' + info.response);
+          }
+        });
+      });
     });
   })
 
-  .put('/blogs/:blog', auth, checkUser, (req, res) => {
+  .put('/blogs/:blog', auth, (req, res) => {
     var blogId = req.params.blog;
     var newBlogInfo = req.body;
     Blog.update({_id: blogId}, newBlogInfo, function(err, blog) {
@@ -166,7 +164,7 @@ module.exports = (router) => {
           console.log(req.params.blog);
           Blog.findByIdAndUpdate(req.params.blog, {$set: update}, {new: true}, (err, thisblog)=> {
             if(err) console.log(err);
-            console.log('this is the blog' + thisblog);
+            console.log(thisblog);
           });
           res.json(uploadData);
           res.end();
@@ -254,5 +252,49 @@ module.exports = (router) => {
           res.status(404).json({msg: 'Unable to locate ' + blogId});
         }
       });
+  })
+  //subscriber routes
+
+  .post('/subscribe', (req, res) => {
+    var subscriber = new Subscriber(req.body);
+    var subEmail = req.body.email;
+
+    Subscriber.findOne({email: subEmail}, (err, email) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({msg: 'Internal server error'});
+      }
+      if (email) {
+        res.status(400).json({msg: 'Already Subscribed'});
+      }
+      if (!email) {
+        console.log(req.body.email);
+        subscriber.save(function(err, sub) {
+          if (err) {
+            console.log(err);
+            res.status(500).json(err);
+          }
+          res.json(sub);
+        });
+      }
+    });
+  })
+
+  .post('/unsubscribe', (req, res) => {
+    var unSub = req.body.email;
+    console.log(req.body.email);
+    Subscriber.findOne({email: unSub}, (err, email) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({msg: 'Internal server error'});
+      }
+      if (email) {
+        email.remove();
+        res.json({msg: 'You are unsubscribed'});
+      }
+      if (!email) {
+        res.json({msg: 'Not a subscriber'});
+      }
+    });
   });
 };
