@@ -4,17 +4,18 @@ module.exports = (router) => {
   weather.setAPPID(process.env.OPEN_WEATHER_TOKEN);
   weather.setLang('en');
   weather.setUnits('imperial');
-  router.get('/whistler', (req, res) => {
+  router.get('/whistler', (req, res, next) => {
     weather.setCityId(6180144);
     weather.getWeatherForecastForDays(3, function(err, obj){
       if(err) {
         console.log(err);
       //return res.status(500);
       }
+      //console.log(obj.list);
       var whistler = obj;
       console.log('hitting whistler');
-      //console.log(whistler);
-      res.send(whistler);
+      console.log(whistler);
+      res.json(whistler);
     });
   });
   router.get('/seattle', (req, res) => {
@@ -25,7 +26,7 @@ module.exports = (router) => {
       }
       var seattle = obj;
       console.log('hitting seattle');
-      res.send(seattle);
+      res.json(seattle);
       //res.end();
     });
   });
@@ -37,7 +38,7 @@ module.exports = (router) => {
       }
       var newyork = obj;
       console.log('hitting newyork city');
-      res.send(newyork);
+      res.json(newyork);
     });
   });
 };
