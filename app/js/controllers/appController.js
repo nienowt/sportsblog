@@ -3,6 +3,15 @@
 module.exports = function(app) {
   app.controller('AppCtrl', ['$scope', '$http', '$location', 'Auth', function($scope, $http, $location, Auth) {
 
+    $scope.getBlog = function() {
+      var url = $location.path();
+      url = url.split('/');
+      var id = url[url.length - 1];
+      $http.get('/blogs/' + id).success(function(response) {
+        $scope.blog = response;
+      });
+    };
+
     $scope.getAllPosts = function() {
       $http.get('/blogs').success(function(response){
         $scope.blogs = response;

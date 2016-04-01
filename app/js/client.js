@@ -3,7 +3,7 @@
 require('angular/angular');
 require('angular-route');
 
-var app = angular.module('app', ['ngRoute']);
+var app = angular.module('app', ['ngRoute']); // eslint-disable-line
 
 require('./controllers/appController')(app);
 
@@ -16,6 +16,10 @@ app.config(['$routeProvider', function($routeProvider) {
   $routeProvider
     .when('/articles', {
       templateUrl: 'html/list.html',
+      controller: 'AppCtrl'
+    })
+    .when('/blogs/:_id', {
+      templateUrl: 'html/singlepost.html',
       controller: 'AppCtrl'
     })
     .when('/newuser', {
