@@ -49,7 +49,7 @@ module.exports = (router) => {
             res.status(500).json(err);
           }
           // tweets article
-          T.post('statuses/update', { status: 'New article from ' + user.name + ' http://localhost:3000/blogs/' + data._id}, function(err, data){
+          T.post('statuses/update', { status: 'New article from ' + user.name + ' http://sportsblog.herokuapp.com/blogs/' + data._id}, function(err, data){
             if (err) console.log(err);
             console.log(data);
           });
