@@ -9,7 +9,6 @@ var nodemailer = require('nodemailer');
 var AWS = require('aws-sdk');
 AWS.config.region = 'us-west-2';
 // var T = require('../twitter');
-// var mailList = [];
 
 function checkUser(req, res, next){
   Blog.findById(req.params.blog, (err, blog) => {

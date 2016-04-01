@@ -10,8 +10,9 @@ var auth = require('../lib/authenticate');
 module.exports = (router) => {
 
   router.post('/keywords/:keyword/follow',auth, (req, res) => {
-    Keyword.findOneAndUpdate({keyword: req.params.keyword}, {$addToSet: {'followedBy': req.decodedToken._id}}, (err, keyword) => {
+    Keyword.findOneAndUpdate({keyword: req.params.keyword}, {$addToSet: {'followedBy': req.decodedToken._id}}, {new: true}, (err, keyword) => {
       if (err) console.log(err);
+      if (keyword) res.json(keyword)
       if (!keyword) {
         res.write('keyword does not exist');
         res.end();
@@ -24,8 +25,9 @@ module.exports = (router) => {
   })
 
   .post('/keywords/:keyword/unfollow', auth, (req, res) => {
-    Keyword.findOneAndUpdate({keyword: req.params.keyword}, {$pull: {'followedBy': req.decodedToken._id}}, (err, keyword) => {
+    Keyword.findOneAndUpdate({keyword: req.params.keyword}, {$pull: {'followedBy': req.decodedToken._id}}, {new: true}, (err, keyword) => {
       if (err) console.log(err);
+      if (keyword) res.json(keyword);
       if (!keyword) {
         res.write('keyword does not exist');
         res.end();
