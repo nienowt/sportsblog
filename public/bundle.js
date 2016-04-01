@@ -49,7 +49,7 @@
 	__webpack_require__(1);
 	__webpack_require__(2);
 
-	var app = angular.module('app', ['ngRoute']);
+	var app = angular.module('app', ['ngRoute']); // eslint-disable-line
 
 	__webpack_require__(4)(app);
 
@@ -62,6 +62,10 @@
 	  $routeProvider
 	    .when('/articles', {
 	      templateUrl: 'html/list.html',
+	      controller: 'AppCtrl'
+	    })
+	    .when('/blogs/:_id', {
+	      templateUrl: 'html/singlepost.html',
 	      controller: 'AppCtrl'
 	    })
 	    .when('/newuser', {
@@ -31850,6 +31854,15 @@
 
 	module.exports = function(app) {
 	  app.controller('AppCtrl', ['$scope', '$http', '$location', 'Auth', function($scope, $http, $location, Auth) {
+
+	    $scope.getBlog = function() {
+	      var url = $location.path();
+	      url = url.split('/');
+	      var id = url[url.length - 1];
+	      $http.get('/blogs/' + id).success(function(response) {
+	        $scope.blog = response;
+	      });
+	    };
 
 	    $scope.getAllPosts = function() {
 	      $http.get('/blogs').success(function(response){

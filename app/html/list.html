@@ -3,7 +3,7 @@
     <h1>These are the articles</h1>
     <div data-ng-repeat="blog in blogs | orderBy: '-date' : !reverse">
       <img data-ng-src="{{blog.titleImage}}">
-      <h3>{{blog.title}}</h3>
+      <a href="#/blogs/{{blog._id}}"><h3>{{blog.title}}</h3></a>
       <p>Posted on {{blog.date | date: 'M/dd/yyyy'}}</p>
       <p>Author: {{blog.author}}</p>
       <p>Keywords: {{blog.keywords[0]}}</p>
