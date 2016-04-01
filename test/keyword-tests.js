@@ -61,7 +61,7 @@ describe('Testing POST and GET for /blogs routes', () => {
       done();
     });
   });
-  it('should respond to post at /keywords/:keyword/follow with by adding follower', (done) => {
+  it('should respond to post at /keywords/:keyword/follow by adding follower', (done) => {
     request(port)
     .post('/keywords/baseball/follow')
     .set('Authorization', 'Token ' + token)
@@ -73,7 +73,7 @@ describe('Testing POST and GET for /blogs routes', () => {
       done();
     })
   })
-  it('should respond to post at /keywords/:keyword/unfollow with by removing follower', (done) => {
+  it('should respond to post at /keywords/:keyword/unfollow by removing follower', (done) => {
     request(port)
     .post('/keywords/baseball/unfollow')
     .set('Authorization', 'Token ' + token)
@@ -82,6 +82,18 @@ describe('Testing POST and GET for /blogs routes', () => {
       expect(err).to.eql(null)
       expect(resText.keyword).to.eql('baseball');
       expect(resText.followedBy[0]).to.eql(undefined);
+      done();
+    })
+  })
+  it('should respond to get at /keywords with array of keywords', (done) => {
+    request(port)
+    .get('/keywords')
+    .set('Authorization', 'Token ' + token)
+    .end((err, res) => {
+      var resText = JSON.parse(res.text)
+      expect(err).to.eql(null)
+      expect(resText[0].keyword).to.eql('basketball');
+      expect(resText[1].keyword).to.eql('baseball');
       done();
     })
   })
